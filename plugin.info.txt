@@ -1,0 +1,7 @@
+base   ismsaddons
+author François KAAG
+email  francois.kaag@cardynal.fr
+date   2021-12-29
+name   ismsaddons plugin
+desc   Specific tokens for Cardynal SMSI Website
+url    https://smsi.cardynal.fr/plugins
