@@ -21,9 +21,9 @@ For the time being, the names for the significant items are hardwired and in Fre
   * property Statut expresses whether the measure is Effective (E), Planned (P) or Not considered (N)
   
 Under these conventions:
-- macro ~~RISKTABLE~~ presents a matrix of the risks per impact and plausibility, current and future
-- macro ~~RISKINDICATORS~~ presents a table with statistics on the risk level per risk criterion
-- macro ~~RISKCHECK~~presents an alert banner depending upon its current page
+- macro \~~RISKTABLE~~ presents a matrix of the risks per impact and plausibility, current and future
+- macro \~~RISKINDICATORS~~ presents a table with statistics on the risk level per risk criterion
+- macro \~~RISKCHECK~~ presents an alert banner depending upon its current page
   * within a page with class scn, if VC < V0 without any effective measure, or VF < VC without any planned measure
   * within a page with class risk, lists all scenarios leading to the risk with such inconsistencies
   * within any other page, lists all scenarios with such inconsistencies
