@@ -150,6 +150,7 @@ a#risk {
 	background-color: blue;
 }
 </style>";
+                $base =strtok($_SERVER['REQUEST_URI'],'?');
 		$R->doc .= "<table><tbody>";
 		foreach (array_reverse($tgrav) as $glabel =>$grav)
 		{
@@ -160,11 +161,11 @@ a#risk {
 				
 				foreach ((array)$VC[$grav][$vrai] as $rname)
 				{
-						$R->doc .='<span class="risk present"><a href="/doku/doku.php?id='.$scope.':'.$rname.'" class="rlink" >'.$rname.'</a></span>';
+						$R->doc .='<span class="risk present"><a href="'.$base.'?id='.$scope.':'.$rname.'" class="rlink" >'.$rname.'</a></span>';
 				}
 				foreach ((array)$VF[$grav][$vrai] as $rname)
 				{
-						$R->doc .='<span class="risk future"><a href="/doku/doku.php?id='.$scope.':'.$rname.'" class="rlink">'.$rname.'</a></span>';
+						$R->doc .='<span class="risk future"><a href="'.$base.'?id='.$scope.':'.$rname.'" class="rlink">'.$rname.'</a></span>';
 				}				
 				$R->doc.="</td>";
 			}
