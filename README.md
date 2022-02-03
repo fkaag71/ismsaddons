@@ -28,4 +28,4 @@ Under these conventions:
   * within a page with class risk, lists all scenarios leading to the risk with such inconsistencies
   * within any other page, lists all scenarios with such inconsistencies
   
-A full usage example will be published in repository ismsexample.
+A full usage example (in French) has been published in repository https://github.com/fkaag71/smsi-example.
