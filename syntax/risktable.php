@@ -49,7 +49,7 @@ class syntax_plugin_ismsaddons_risktable extends \dokuwiki\Extension\SyntaxPlugi
 	}
 
 	function getParam ($key,$scope) {
-		$table= $this->triples->fetchTriples($scope.":param#".$key,null,null,null);
+		$table= $this->triples->fetchTriples($scope."param#".$key,null,null,null);
 		foreach ($table as $elem)
 		{
 			if ($elem['predicate']!='entry title') { $res[$elem['predicate']]=$elem['object']; };
@@ -61,6 +61,7 @@ class syntax_plugin_ismsaddons_risktable extends \dokuwiki\Extension\SyntaxPlugi
     public function render($mode, Doku_Renderer $R, $data) {
 	global $ID;
 	$scope = GetNS ($ID);
+	if ($scope != "")$scope .=":";
 	
 	if($mode == 'xhtml') {
 		
@@ -161,11 +162,11 @@ a#risk {
 				
 				foreach ((array)$VC[$grav][$vrai] as $rname)
 				{
-						$R->doc .='<span class="risk present"><a href="'.$base.'?id='.$scope.':'.$rname.'" class="rlink" >'.$rname.'</a></span>';
+						$R->doc .='<span class="risk present"><a href="'.$base.'?id='.$scope.$rname.'" class="rlink" >'.$rname.'</a></span>';
 				}
 				foreach ((array)$VF[$grav][$vrai] as $rname)
 				{
-						$R->doc .='<span class="risk future"><a href="'.$base.'?id='.$scope.':'.$rname.'" class="rlink">'.$rname.'</a></span>';
+						$R->doc .='<span class="risk future"><a href="'.$base.'?id='.$scope.$rname.'" class="rlink">'.$rname.'</a></span>';
 				}				
 				$R->doc.="</td>";
 			}
