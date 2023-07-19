@@ -61,7 +61,7 @@ class syntax_plugin_ismsaddons_risktable extends \dokuwiki\Extension\SyntaxPlugi
     public function render($mode, Doku_Renderer $R, $data) {
 	global $ID;
 	$scope = GetNS ($ID);
-	if ($scope != "")$scope .=":";
+        if ($scope != "") $scope .=":";
 	
 	if($mode == 'xhtml') {
 		
@@ -159,12 +159,21 @@ a#risk {
 			foreach ($tvrai as $vrai)
 			{				
 				$R->doc.="<td style='background-color:#".$lcolor[$grav*$vrai]."'>";	
-				
-				foreach ((array)$VC[$grav][$vrai] as $rname)
+
+				$rnames=[];
+				if (isset($VC[$grav])) { 
+                                   if (isset($VC[$grav][$vrai])) {$rnames=(array)$VC[$grav][$vrai]; } }
+
+				foreach ( $rnames as $rname)
 				{
 						$R->doc .='<span class="risk present"><a href="'.$base.'?id='.$scope.$rname.'" class="rlink" >'.$rname.'</a></span>';
 				}
-				foreach ((array)$VF[$grav][$vrai] as $rname)
+
+				$rnames=[];
+				if (isset($VF[$grav])) { 
+                                   if (isset($VF[$grav][$vrai])) {$rnames=(array)$VF[$grav][$vrai]; } }
+
+				foreach ($rnames as $rname)
 				{
 						$R->doc .='<span class="risk future"><a href="'.$base.'?id='.$scope.$rname.'" class="rlink">'.$rname.'</a></span>';
 				}				
