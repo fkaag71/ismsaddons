@@ -43,7 +43,8 @@ class syntax_plugin_ismsaddons_riskindicators extends \dokuwiki\Extension\Syntax
     }
 
 	function getParam ($key,$scope) {
-		$table= $this->triples->fetchTriples($scope.":param#".$key,null,null,null);
+		$table= $this->triples->fetchTriples($scope."param#".$key,null,null,null);
+                $res=[];
 		foreach ($table as $elem)
 		{
 			if ($elem['predicate']!='entry title') { $res[$elem['predicate']]=$elem['object']; };
@@ -68,7 +69,8 @@ class syntax_plugin_ismsaddons_riskindicators extends \dokuwiki\Extension\Syntax
     public function render($mode, Doku_Renderer $R, $data) {
 	global $ID;
 	$scope = GetNS ($ID);
-	
+	if ($scope !='') $scope .= ':';
+
 	if($mode == 'xhtml') {
 	
 		$tcrit = $this->getParam("Critere",$scope);
