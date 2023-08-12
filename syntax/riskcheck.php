@@ -5,10 +5,16 @@
  * @license GPL 2 http://www.gnu.org/licenses/gpl-2.0.html
  * @author  François KAAG <francois.kaag@cardynal.fr>
  */
+
+require_once(DOKU_PLUGIN.'ismsaddons/syntax/ismslocale.php');
+
 class syntax_plugin_ismsaddons_riskcheck extends \dokuwiki\Extension\SyntaxPlugin
 {
     public function __construct() {
 	$this->triples =& plugin_load('helper', 'strata_triples');
+        $l = new ISMSLocale();
+        $this->labels=$l->vlabel[$this->getConf('lang')];
+
 	}
 
     /** @inheritDoc */
@@ -53,31 +59,32 @@ class syntax_plugin_ismsaddons_riskcheck extends \dokuwiki\Extension\SyntaxPlugi
 	
 	function checkScn ($scn)
 	{
+                $labels=$this->labels;
 		$ErrMsg = "";
-		$V0 = $this->getProperty($scn,"V0");
-		$VC = $this->getProperty($scn,"VC");
-		$VF = $this->getProperty($scn,"VF");
+		$V0 = $this->getProperty($scn,$labels['il']);
+		$VC = $this->getProperty($scn,$labels['cl']);
+		$VF = $this->getProperty($scn,$labels['fl']);
 			
-		if (!$V0) $ErrMsg .= "<p>V0 non définie</p>";
-		if (!$VC) $ErrMsg .= "<p>VC non définie</p>";
-		if (!$VF) $ErrMsg .= "<p>VF non définie</p>";
+		if (!$V0) $ErrMsg .= '<p>'.$labels['NoV0'].'</p>';
+		if (!$VC) $ErrMsg .= '<p>'.$labels['NoVC'].'</p>';
+		if (!$VF) $ErrMsg .= '<p>'.$labels['NoVF'].'</p>';
 
 		if ($ErrMsg !="") return $ErrMsg;
 		
-		if ($VC > $V0) $ErrMsg .= "<p>Hausse de la vraisemblance courante</p>";
-		if ($VF > $VC) $ErrMsg .= "<p>Hausse de la vraisemblance future</p>";
+		if ($VC > $V0) $ErrMsg .= '<p>'.$labels['HiVC'].'</p>';
+		if ($VF > $VC) $ErrMsg .= '<p>'.$labels['HiVF'].'</p>';
 			
-		$mesures = $this->triples->fetchTriples($scn,"Mesures",null,null);
+		$mesures = $this->triples->fetchTriples($scn,$labels['measures'],null,null);
 		$NEff = $NProg = 0;
 			
 		foreach ($mesures as $mesure)
 		{
-			$status = $this->getProperty($mesure['object'],"Statut");				
-			if ($status == 'E') $NEff ++;
-			if ($status == 'P') $NProg ++;
+			$status = $this->getProperty($mesure['object'],$labels['status']);				
+			if ($status == $labels['codeEffective']) $NEff ++;
+			if ($status == $labels['codePlanned']) $NProg ++;
 		}
-		if (($VC < $V0) && ($NEff == 0)) $ErrMsg .= "<p>Baisse de vraisemblance courante sans mesures effectives</p>";
-		if (($VF < $VC) && ($NProg == 0)) $ErrMsg .= "<p>Baisse de vraisemblance future sans mesures programmées</p>";		
+		if (($VC < $V0) && ($NEff == 0)) $ErrMsg .= '<p>'.$labels['LoVC'].'</p>';
+		if (($VF < $VC) && ($NProg == 0)) $ErrMsg .= '<p>'.$labels['LoVF'].'</p>';		
 		return $ErrMsg;
 	}
 		
@@ -104,7 +111,7 @@ class syntax_plugin_ismsaddons_riskcheck extends \dokuwiki\Extension\SyntaxPlugi
 				$err = $this->checkScn($scnID); 
 				if ( $err != "")
 				{
-					$R->doc .= "<p>Incohérence sur le scénario ".noNS($scnID)."</p>";
+					$R->doc .= '<p>'.$labels['ErrSCN'].'</p>';
 				}
 			} 
 		}
@@ -118,7 +125,7 @@ class syntax_plugin_ismsaddons_riskcheck extends \dokuwiki\Extension\SyntaxPlugi
 				$err = $this->checkScn($scnID); 
 				if ( $err != "")
 				{
-					$R->doc .= "<p>Incohérence sur le scénario ".noNS($scnID)."</p>";
+					$R->doc .= '<p>'.$labels['ErrSCN'].'</p>';
 				}
 			} 						
 		}

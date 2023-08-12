@@ -5,11 +5,16 @@
  * @license GPL 2 http://www.gnu.org/licenses/gpl-2.0.html
  * @author  François KAAG <francois.kaag@cardynal.fr>
  */
+require_once(DOKU_PLUGIN.'ismsaddons/syntax/ismslocale.php');
+
 class syntax_plugin_ismsaddons_riskindicators extends \dokuwiki\Extension\SyntaxPlugin
 {
     public function __construct() {
 	$this->triples =& plugin_load('helper', 'strata_triples');
+        $l = new ISMSLocale();
+        $this->labels=$l->vlabel[$this->getConf('lang')];
 	}
+
 
     /** @inheritDoc */
     public function getType()
@@ -61,7 +66,7 @@ class syntax_plugin_ismsaddons_riskindicators extends \dokuwiki\Extension\Syntax
 		{
 			$val = $table[$crit];
 			$style=($lcolor?" style='background-color:#".$lcolor[$val]."'":"");
-			$R->doc .="<td".$style.">".$val.$cellformat."</td>";
+			$R->doc .="<td".$style.">".$val."</td>";
 		}		
 		$R->doc .="</tr>";		
 	}
@@ -69,13 +74,15 @@ class syntax_plugin_ismsaddons_riskindicators extends \dokuwiki\Extension\Syntax
     public function render($mode, Doku_Renderer $R, $data) {
 	global $ID;
 	$scope = GetNS ($ID);
+        $labels=$this->labels;
 	if ($scope !='') $scope .= ':';
 
 	if($mode == 'xhtml') {
 	
-		$tcrit = $this->getParam("Critere",$scope);
-		$tlevel = $this->getParam("NiveauRisque",$scope);
-		$tcolor = $this->getParam("CouleurRisque",$scope);
+		$tcrit = $this->getParam(iconv('UTF-8','ASCII//TRANSLIT',$labels['criterion']),$scope);
+		$tlevel = $this->getParam(iconv('UTF-8','ASCII//TRANSLIT',$labels['RiskLevel']),$scope);
+		$tcolor = $this->getParam(iconv('UTF-8','ASCII//TRANSLIT',$labels['RiskColor']),$scope);
+syslog(LOG_INFO, serialize($tcrit));
 		
 		$i = 1;
 		foreach ($tlevel as $level=>$limit)
@@ -88,7 +95,7 @@ class syntax_plugin_ismsaddons_riskindicators extends \dokuwiki\Extension\Syntax
 		
 		foreach ($tcrit as $label=>$crit)
 		{			
-			$trisk = $this->triples->fetchTriples(null,"critère",$crit,null);
+			$trisk = $this->triples->fetchTriples(null,$labels['criterion'],$crit,null);
 			$N = count($trisk);
 			$sumc = $qsumc = 0;
 			$sumf = $qsumf = 0;
@@ -96,21 +103,23 @@ class syntax_plugin_ismsaddons_riskindicators extends \dokuwiki\Extension\Syntax
 			
 			foreach ($trisk as $erisk)
 			{
-				$trgrav = $this->triples->fetchTriples($erisk['subject'],"gravité",null,null);
+				$trgrav = $this->triples->fetchTriples($erisk['subject'],$labels['impact'],null,null);
+
 				if ($trgrav) {
 					$grav= intval($trgrav[0]['object']);
 				};
-					
+				
 				$vcmax = $vfmax = 0;
-				$tscn = $this->triples->fetchTriples($erisk['subject'],"scenarios",null,null);
+				$tscn = $this->triples->fetchTriples($erisk['subject'],$labels['scenarios'],null,null);
+
 				foreach ($tscn as $escn)
 				{
-					$tvc = $this->triples->fetchTriples($escn['object'],"vc",null,null);
+					$tvc = $this->triples->fetchTriples($escn['object'],$labels['cl'],null,null);
 					if ($tvc) { 
 						$vc = intval($tvc[0]['object']); 
 						if ($vc > $vcmax) $vcmax = $vc;
 						}
-					$tvf = $this->triples->fetchTriples($escn['object'],"vf",null,null);
+					$tvf = $this->triples->fetchTriples($escn['object'],$labels['fl'],null,null);
 					if ($tvf) { 
 						$vf = intval($tvf[0]['object']); 
 						if ($vf > $vfmax) $vfmax = $vf;
@@ -119,6 +128,7 @@ class syntax_plugin_ismsaddons_riskindicators extends \dokuwiki\Extension\Syntax
 				$risklevelc = $grav*$vcmax;
 				$risklevelf = $grav*$vfmax;
 				
+
 				if ($risklevelc > $cmaxc) $cmaxc = $risklevelc;
 				if ($risklevelf > $cmaxf) $cmaxf = $risklevelf;
 				
@@ -164,13 +174,13 @@ td:first-child {
 		}
 		$R->doc .="</tr></thead><tbody>";
 		
-		$this->printRow($R,$tcrit,"Nombre de risques",$NRisk,null);
-		$this->printRow($R,$tcrit,"Niveau max courant",$MaxC,$lcolor);
-		$this->printRow($R,$tcrit,"Niveau moyen courant",$MeanC,$lcolor);
-		$this->printRow($R,$tcrit,"Niveau quadratique courant",$QMeanC,$lcolor);
-		$this->printRow($R,$tcrit,"Niveau max futur",$MaxF,$lcolor);
-		$this->printRow($R,$tcrit,"Niveau moyen futur",$MeanF,$lcolor);
-		$this->printRow($R,$tcrit,"Niveau quadratique futur",$QMeanF,$lcolor);
+		$this->printRow($R,$tcrit,$labels['NRiskLabel'],$NRisk,null);
+		$this->printRow($R,$tcrit,$labels['MaxCLabel'],$MaxC,$lcolor);
+		$this->printRow($R,$tcrit,$labels['MeanCLabel'],$MeanC,$lcolor);
+		$this->printRow($R,$tcrit,$labels['QMeanCLabel'],$QMeanC,$lcolor);
+		$this->printRow($R,$tcrit,$labels['MaxFLabel'],$MaxF,$lcolor);
+		$this->printRow($R,$tcrit,$labels['MeanFLabel'],$MeanF,$lcolor);
+		$this->printRow($R,$tcrit,$labels['QMeanFLabel'],$QMeanF,$lcolor);
 		$R->doc .="</tbody></table>";
 		return true;
    }

@@ -5,10 +5,16 @@
  * @license GPL 2 http://www.gnu.org/licenses/gpl-2.0.html
  * @author  François KAAG <francois.kaag@cardynal.fr>
  */
+
+require_once(DOKU_PLUGIN.'ismsaddons/syntax/ismslocale.php');
+
 class syntax_plugin_ismsaddons_risktable extends \dokuwiki\Extension\SyntaxPlugin
 {
     public function __construct() {
 	$this->triples =& plugin_load('helper', 'strata_triples');
+
+        $l = new ISMSLocale();
+        $this->labels = $l->vlabel[$this->getConf('lang')];
 	}
 
     /** @inheritDoc */
@@ -61,14 +67,16 @@ class syntax_plugin_ismsaddons_risktable extends \dokuwiki\Extension\SyntaxPlugi
     public function render($mode, Doku_Renderer $R, $data) {
 	global $ID;
 	$scope = GetNS ($ID);
+        $labels=$this->labels;
+
         if ($scope != "") $scope .=":";
 	
 	if($mode == 'xhtml') {
 		
-		$tgrav = $this->getParam("gravite",$scope);		
-		$tvrai = $this->getParam("vraisemblance",$scope);
-		$tlevel = $this->getParam("NiveauRisque",$scope);
-		$tcolor = $this->getParam("CouleurRisque",$scope);
+		$tgrav = $this->getParam(iconv('UTF-8','ASCII//TRANSLIT',$labels['impact']),$scope);		
+		$tvrai = $this->getParam(iconv('UTF-8','ASCII//TRANSLIT',$labels['likelihood']),$scope);
+		$tlevel = $this->getParam(iconv('UTF-8','ASCII//TRANSLIT',$labels['RiskLevel']),$scope);
+		$tcolor = $this->getParam(iconv('UTF-8','ASCII//TRANSLIT',$labels['RiskColor']),$scope);
 		
 		$i = 1;
 		foreach ($tlevel as $level=>$limit)
@@ -84,7 +92,7 @@ class syntax_plugin_ismsaddons_risktable extends \dokuwiki\Extension\SyntaxPlugi
 		foreach ($trisk as $erisk)
 		{
 			$rname = noNS($erisk['subject']);
-			$trgrav = $this->triples->fetchTriples($erisk['subject'],"gravité",null,null);
+			$trgrav = $this->triples->fetchTriples($erisk['subject'],$labels['impact'],null,null);
 			if ($trgrav) {
 				$grav= intval($trgrav[0]['object']);
 			};
@@ -93,12 +101,12 @@ class syntax_plugin_ismsaddons_risktable extends \dokuwiki\Extension\SyntaxPlugi
 			$tscn = $this->triples->fetchTriples($erisk['subject'],"scenarios",null,null);
 			foreach ($tscn as $escn)
 			{
-				$tvc = $this->triples->fetchTriples($escn['object'],"vc",null,null);
+				$tvc = $this->triples->fetchTriples($escn['object'],$labels['cl'],null,null);
 				if ($tvc) { 
 					$vc = intval($tvc[0]['object']); 
 					if ($vc > $vcmax) $vcmax = $vc;
 					}
-				$tvf = $this->triples->fetchTriples($escn['object'],"vf",null,null);
+				$tvf = $this->triples->fetchTriples($escn['object'],$labels['fl'],null,null);
 				if ($tvf) { 
 					$vf = intval($tvf[0]['object']); 
 					if ($vf > $vfmax) $vfmax = $vf;
@@ -187,7 +195,7 @@ a#risk {
 			$R->doc .="<th>".$vlabel."</th>";
 		}
 		$R->doc .="</tfoot></table>";
-		$R ->doc .= "<span class='risk present'>Niveaux présents</span> <span class='risk future'>Niveaux futurs</span>";
+		$R ->doc .= "<span class='risk present'>".$labels['present']."</span> <span class='risk future'>".$labels['future']."</span>";
 		
 		return true;
    }
