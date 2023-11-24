@@ -13,8 +13,9 @@ class syntax_plugin_ismsaddons_risktable extends \dokuwiki\Extension\SyntaxPlugi
     public function __construct() {
 	$this->triples =& plugin_load('helper', 'strata_triples');
 
-        $l = new ISMSLocale();
-        $this->labels = $l->vlabel[$this->getConf('lang')];
+        $this->locale = new ISMSLocale();
+        $this->labels = $this->locale->vlabel[$this->getConf('lang')];
+        $this->pscope = $this->getConf('param');
 	}
 
     /** @inheritDoc */
@@ -55,7 +56,7 @@ class syntax_plugin_ismsaddons_risktable extends \dokuwiki\Extension\SyntaxPlugi
 	}
 
 	function getParam ($key,$scope) {
-		$table= $this->triples->fetchTriples($scope."param#".$key,null,null,null);
+		$table= $this->triples->fetchTriples($scope.$key,null,null,null);
 		foreach ($table as $elem)
 		{
 			if ($elem['predicate']!='entry title') { $res[$elem['predicate']]=$elem['object']; };
@@ -66,17 +67,18 @@ class syntax_plugin_ismsaddons_risktable extends \dokuwiki\Extension\SyntaxPlugi
 	
     public function render($mode, Doku_Renderer $R, $data) {
 	global $ID;
-	$scope = GetNS ($ID);
         $labels=$this->labels;
 
-        if ($scope != "") $scope .=":";
-	
+	$scope = GetNS ($ID);
+	if ($this->pscope == '') $pscope = ($scope == ''?'param#':$scope.':param#');
+ 	else $pscope = $this->pscope.'#';
+
 	if($mode == 'xhtml') {
 		
-		$tgrav = $this->getParam(iconv('UTF-8','ASCII//TRANSLIT',$labels['impact']),$scope);		
-		$tvrai = $this->getParam(iconv('UTF-8','ASCII//TRANSLIT',$labels['likelihood']),$scope);
-		$tlevel = $this->getParam(iconv('UTF-8','ASCII//TRANSLIT',$labels['RiskLevel']),$scope);
-		$tcolor = $this->getParam(iconv('UTF-8','ASCII//TRANSLIT',$labels['RiskColor']),$scope);
+		$tgrav = $this->getParam($this->locale->remove_accents($labels['impact']),$pscope);		
+		$tvrai = $this->getParam($this->locale->remove_accents($labels['likelihood']),$pscope);
+		$tlevel = $this->getParam($this->locale->remove_accents($labels['RiskLevel']),$pscope);
+		$tcolor = $this->getParam($this->locale->remove_accents($labels['RiskColor']),$pscope);
 		
 		$i = 1;
 		foreach ($tlevel as $level=>$limit)
@@ -174,7 +176,7 @@ a#risk {
 
 				foreach ( $rnames as $rname)
 				{
-						$R->doc .='<span class="risk present"><a href="'.$base.'?id='.$scope.$rname.'" class="rlink" >'.$rname.'</a></span>';
+						$R->doc .='<span class="risk present"><a href="'.$base.'?id='.$scope.':'.$rname.'" class="rlink" >'.$rname.'</a></span>';
 				}
 
 				$rnames=[];
@@ -183,7 +185,7 @@ a#risk {
 
 				foreach ($rnames as $rname)
 				{
-						$R->doc .='<span class="risk future"><a href="'.$base.'?id='.$scope.$rname.'" class="rlink">'.$rname.'</a></span>';
+						$R->doc .='<span class="risk future"><a href="'.$base.'?id='.$scope.':'.$rname.'" class="rlink">'.$rname.'</a></span>';
 				}				
 				$R->doc.="</td>";
 			}

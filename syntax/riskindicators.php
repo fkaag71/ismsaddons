@@ -11,10 +11,10 @@ class syntax_plugin_ismsaddons_riskindicators extends \dokuwiki\Extension\Syntax
 {
     public function __construct() {
 	$this->triples =& plugin_load('helper', 'strata_triples');
-        $l = new ISMSLocale();
-        $this->labels=$l->vlabel[$this->getConf('lang')];
+        $this->locale = new ISMSLocale();
+        $this->labels=$this->locale->vlabel[$this->getConf('lang')];
+        $this->pscope = $this->getConf('param');
 	}
-
 
     /** @inheritDoc */
     public function getType()
@@ -48,7 +48,7 @@ class syntax_plugin_ismsaddons_riskindicators extends \dokuwiki\Extension\Syntax
     }
 
 	function getParam ($key,$scope) {
-		$table= $this->triples->fetchTriples($scope."param#".$key,null,null,null);
+		$table= $this->triples->fetchTriples($scope.$key,null,null,null);
                 $res=[];
 		foreach ($table as $elem)
 		{
@@ -73,16 +73,20 @@ class syntax_plugin_ismsaddons_riskindicators extends \dokuwiki\Extension\Syntax
 	
     public function render($mode, Doku_Renderer $R, $data) {
 	global $ID;
-	$scope = GetNS ($ID);
-        $labels=$this->labels;
-	if ($scope !='') $scope .= ':';
+
+    $labels=$this->labels;
+	if ($this->pscope == '')
+	{
+		$scope = GetNS ($ID);
+                $scope = ($scope == ''?'param#':$scope.':param#');
+	}
+	else $scope = $this->pscope.'#';
 
 	if($mode == 'xhtml') {
 	
-		$tcrit = $this->getParam(iconv('UTF-8','ASCII//TRANSLIT',$labels['criterion']),$scope);
-		$tlevel = $this->getParam(iconv('UTF-8','ASCII//TRANSLIT',$labels['RiskLevel']),$scope);
-		$tcolor = $this->getParam(iconv('UTF-8','ASCII//TRANSLIT',$labels['RiskColor']),$scope);
-syslog(LOG_INFO, serialize($tcrit));
+		$tcrit = $this->getParam($this->locale->remove_accents($labels['criterion']),$scope);
+		$tlevel = $this->getParam($this->locale->remove_accents($labels['RiskLevel']),$scope);
+		$tcolor = $this->getParam($this->locale->remove_accents($labels['RiskColor']),$scope);
 		
 		$i = 1;
 		foreach ($tlevel as $level=>$limit)
