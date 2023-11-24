@@ -15,7 +15,6 @@ class syntax_plugin_ismsaddons_risktable extends \dokuwiki\Extension\SyntaxPlugi
 
         $l = new ISMSLocale();
         $this->labels = $l->vlabel[$this->getConf('lang')];
-        $this->pscope = $this->getConf('param');
 	}
 
     /** @inheritDoc */
@@ -56,7 +55,7 @@ class syntax_plugin_ismsaddons_risktable extends \dokuwiki\Extension\SyntaxPlugi
 	}
 
 	function getParam ($key,$scope) {
-		$table= $this->triples->fetchTriples($scope.$key,null,null,null);
+		$table= $this->triples->fetchTriples($scope."param#".$key,null,null,null);
 		foreach ($table as $elem)
 		{
 			if ($elem['predicate']!='entry title') { $res[$elem['predicate']]=$elem['object']; };
@@ -67,18 +66,17 @@ class syntax_plugin_ismsaddons_risktable extends \dokuwiki\Extension\SyntaxPlugi
 	
     public function render($mode, Doku_Renderer $R, $data) {
 	global $ID;
+	$scope = GetNS ($ID);
         $labels=$this->labels;
 
-	$scope = GetNS ($ID);
-	if ($this->pscope == '') $pscope = ($scope == ''?'param#':$scope.':param#');
- 	else $pscope = $this->pscope.'#';
-
+        if ($scope != "") $scope .=":";
+	
 	if($mode == 'xhtml') {
 		
-		$tgrav = $this->getParam(iconv('UTF-8','ASCII//TRANSLIT',$labels['impact']),$pscope);		
-		$tvrai = $this->getParam(iconv('UTF-8','ASCII//TRANSLIT',$labels['likelihood']),$pscope);
-		$tlevel = $this->getParam(iconv('UTF-8','ASCII//TRANSLIT',$labels['RiskLevel']),$pscope);
-		$tcolor = $this->getParam(iconv('UTF-8','ASCII//TRANSLIT',$labels['RiskColor']),$pscope);
+		$tgrav = $this->getParam(iconv('UTF-8','ASCII//TRANSLIT',$labels['impact']),$scope);		
+		$tvrai = $this->getParam(iconv('UTF-8','ASCII//TRANSLIT',$labels['likelihood']),$scope);
+		$tlevel = $this->getParam(iconv('UTF-8','ASCII//TRANSLIT',$labels['RiskLevel']),$scope);
+		$tcolor = $this->getParam(iconv('UTF-8','ASCII//TRANSLIT',$labels['RiskColor']),$scope);
 		
 		$i = 1;
 		foreach ($tlevel as $level=>$limit)
@@ -176,7 +174,7 @@ a#risk {
 
 				foreach ( $rnames as $rname)
 				{
-						$R->doc .='<span class="risk present"><a href="'.$base.'?id='.$scope.':'.$rname.'" class="rlink" >'.$rname.'</a></span>';
+						$R->doc .='<span class="risk present"><a href="'.$base.'?id='.$scope.$rname.'" class="rlink" >'.$rname.'</a></span>';
 				}
 
 				$rnames=[];

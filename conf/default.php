@@ -6,4 +6,3 @@
  */
 
 $conf['lang']    = 'fr';
-$conf['param'] = '';
