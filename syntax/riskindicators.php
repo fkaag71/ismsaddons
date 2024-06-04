@@ -52,7 +52,7 @@ class syntax_plugin_ismsaddons_riskindicators extends \dokuwiki\Extension\Syntax
                 $res=[];
 		foreach ($table as $elem)
 		{
-			if ($elem['predicate']!='entry title') { $res[$elem['predicate']]=$elem['object']; };
+			if ($elem['predicate']!=$this->triples->getConf('title_key')) { $res[$elem['predicate']]=$elem['object']; };
 		}		
 		asort ($res,SORT_NUMERIC);
 		return $res;

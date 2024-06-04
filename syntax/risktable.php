@@ -59,7 +59,7 @@ class syntax_plugin_ismsaddons_risktable extends \dokuwiki\Extension\SyntaxPlugi
 		$table= $this->triples->fetchTriples($scope.$key,null,null,null);
 		foreach ($table as $elem)
 		{
-			if ($elem['predicate']!='entry title') { $res[$elem['predicate']]=$elem['object']; };
+			if ($elem['predicate']!=$this->triples->getConf('title_key')) { $res[$elem['predicate']]=$elem['object']; };
 		}		
 		asort ($res,SORT_NUMERIC);
 		return $res;
