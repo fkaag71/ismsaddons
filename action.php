@@ -50,7 +50,7 @@ class action_plugin_ismsaddons extends ActionPlugin
 		$type = $this->getProperty($ID,"is a");
 		
 		if (!in_array($type,array('mes','scn','risk'),true)) return;
-			
+
 		$lrisk = $this->triples->fetchTriples(null,"is a","risk",null);
 		$lscn = $this->triples->fetchTriples(null,"is a","scn",null);
 		$lmes = $this->triples->fetchTriples(null,"is a","mes",null);
@@ -114,8 +114,8 @@ class action_plugin_ismsaddons extends ActionPlugin
 			
 			foreach ($lscn as $escn)
 			{
-				$Va = $this->getProperty($escn['object'],$this->getLang("al"));
-				if ($Va > $V) $V = $Va;
+				$Vc = $this->getProperty($escn['object'],$this->getLang("cl"));
+				if ($Vc > $V) $V = $Vc;
 			}			
 			$this->changeProperty($riskID,$this->getLang("likelihood"),$V);
 			$this->changeProperty($riskID,$this->getLang("RiskLevel"),$impact*$V);
