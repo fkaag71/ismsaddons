@@ -6,5 +6,5 @@
  */
 
 
-$lang['lang'] = 'Language selection';
 $lang['param'] = 'Page for risk settings';
+$lang['auto'] = 'Auto update';

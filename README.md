@@ -3,9 +3,8 @@
 
 This plugin implements additional macros to support a risk management tool based upon Strata.
 
-For the time being, the names for the significant items are hardwired and in French.
 - page data classes risk, scn, mes correspond to risks, scenarios and mitigation measures.
-- page param contains data fragments:
+- page param (configurable) contains data fragments:
   * param#gravite for the risk impact
   * param#vraisemblance for the scenario plausibility
   * param#NiveauRisque for the thresholds of risk levels, computed as risk impact x max (scenarios plausibility)
@@ -27,5 +26,17 @@ Under these conventions:
   * within a page with class scn, if VC < V0 without any effective measure, or VF < VC without any planned measure
   * within a page with class risk, lists all scenarios leading to the risk with such inconsistencies
   * within any other page, lists all scenarios with such inconsistencies
-  
+
+
+RECENT CHANGES TO BE FURTHER DOCUMENTED
+For each scenario, measures can now be identified as Measures, Measures2 or Measures3, by decreasing effect on the scenario.
+The corresponding plausibilities are VF, VF2 and VF3.
+An automated Va plausibility is computed and set to VF if all measures in Measures are effective, then VF2 and VF3 where they are complemented with measures from Measures2 and Measures3.
+
+If the auto configuration attribute is set, Vf is copied to Vc.
+
+New attributes are also automatically computed for Risks, Vraisemblance as the maximum plausibility of associated scenarios and NiveauRisque as the product of Vraisemblance and Impact.
+
+When the auto config flag is set, the RISKCHECK macro is disabled.
+
 A full usage example (in French) has been published in repository https://github.com/fkaag71/smsi-example.

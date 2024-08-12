@@ -6,14 +6,10 @@
  * @author  François KAAG <francois.kaag@cardynal.fr>
  */
 
-require_once(DOKU_PLUGIN.'ismsaddons/syntax/ismslocale.php');
-
 class syntax_plugin_ismsaddons_riskcheck extends \dokuwiki\Extension\SyntaxPlugin
 {
     public function __construct() {
 	$this->triples =& plugin_load('helper', 'strata_triples');
-        $l = new ISMSLocale();
-        $this->labels=$l->vlabel[$this->getConf('lang')];
 
 	}
 
@@ -59,32 +55,31 @@ class syntax_plugin_ismsaddons_riskcheck extends \dokuwiki\Extension\SyntaxPlugi
 	
 	function checkScn ($scn)
 	{
-                $labels=$this->labels;
 		$ErrMsg = "";
-		$V0 = $this->getProperty($scn,$labels['il']);
-		$VC = $this->getProperty($scn,$labels['cl']);
-		$VF = $this->getProperty($scn,$labels['fl']);
+		$V0 = $this->getProperty($scn,$this->getLang('il'));
+		$VC = $this->getProperty($scn,$this->getLang('cl'));
+		$VF = $this->getProperty($scn,$this->getLang('fl'));
 			
-		if (!$V0) $ErrMsg .= '<p>'.$labels['NoV0'].'</p>';
-		if (!$VC) $ErrMsg .= '<p>'.$labels['NoVC'].'</p>';
-		if (!$VF) $ErrMsg .= '<p>'.$labels['NoVF'].'</p>';
+		if (!$V0) $ErrMsg .= '<p>'.$this->getLang('NoV0').'</p>';
+		if (!$VC) $ErrMsg .= '<p>'.$this->getLang('NoVC').'</p>';
+		if (!$VF) $ErrMsg .= '<p>'.$this->getLang('NoVF').'</p>';
 
 		if ($ErrMsg !="") return $ErrMsg;
 		
-		if ($VC > $V0) $ErrMsg .= '<p>'.$labels['HiVC'].'</p>';
-		if ($VF > $VC) $ErrMsg .= '<p>'.$labels['HiVF'].'</p>';
+		if ($VC > $V0) $ErrMsg .= '<p>'.$this->getLang('HiVC').'</p>';
+		if ($VF > $VC) $ErrMsg .= '<p>'.$this->getLang('HiVF').'</p>';
 			
-		$mesures = $this->triples->fetchTriples($scn,$labels['measures'],null,null);
+		$mesures = $this->triples->fetchTriples($scn,$this->getLang('measures'),null,null);
 		$NEff = $NProg = 0;
 			
 		foreach ($mesures as $mesure)
 		{
-			$status = $this->getProperty($mesure['object'],$labels['status']);				
-			if ($status == $labels['codeEffective']) $NEff ++;
-			if ($status == $labels['codePlanned']) $NProg ++;
+			$status = $this->getProperty($mesure['object'],$this->getLang('status'));				
+			if ($status == $this->getLang('codeEffective')) $NEff ++;
+			if ($status == $this->getLang('codePlanned')) $NProg ++;
 		}
-		if (($VC < $V0) && ($NEff == 0)) $ErrMsg .= '<p>'.$labels['LoVC'].'</p>';
-		if (($VF < $VC) && ($NProg == 0)) $ErrMsg .= '<p>'.$labels['LoVF'].'</p>';		
+		if (($VC < $V0) && ($NEff == 0)) $ErrMsg .= '<p>'.$this->getLang('LoVC').'</p>';
+		if (($VF < $VC) && ($NProg == 0)) $ErrMsg .= '<p>'.$this->getLang('LoVF').'</p>';		
 		return $ErrMsg;
 	}
 		
@@ -92,6 +87,9 @@ class syntax_plugin_ismsaddons_riskcheck extends \dokuwiki\Extension\SyntaxPlugi
 	global $ID;
 	$scope = GetNS ($ID);
 	$page = noNS($ID);
+
+	/* No need to check in auto mode */
+	if ($this->getConf('auto')) return true;
 	
 	if($mode == 'xhtml') {
 		$type = $this->getProperty($ID,"is a");
@@ -111,7 +109,7 @@ class syntax_plugin_ismsaddons_riskcheck extends \dokuwiki\Extension\SyntaxPlugi
 				$err = $this->checkScn($scnID); 
 				if ( $err != "")
 				{
-					$R->doc .= '<p>'.$labels['ErrSCN'].'</p>';
+					$R->doc .= '<p>'.$this->getLang('ErrSCN').'</p>';
 				}
 			} 
 		}
@@ -125,7 +123,7 @@ class syntax_plugin_ismsaddons_riskcheck extends \dokuwiki\Extension\SyntaxPlugi
 				$err = $this->checkScn($scnID); 
 				if ( $err != "")
 				{
-					$R->doc .= '<p>'.$labels['ErrSCN'].'</p>';
+					$R->doc .= '<p>'.$this->getLang('ErrSCN').'</p>';
 				}
 			} 						
 		}

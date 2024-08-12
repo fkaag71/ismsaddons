@@ -1,0 +1,37 @@
+<?php
+$lang['measures'] ='measures';
+$lang['measures2'] ='measures2';
+$lang['measures3'] ='measures3';
+$lang['scenarios'] ='scenarios';
+$lang['status'] ='status';
+$lang['impact'] ='Impact';
+$lang['criterion'] ='Criterion';
+$lang['likelihood'] ='likelihood';
+$lang['RiskLevel'] ='RiskLevel';
+$lang['RiskColor'] ='RiskColor';
+$lang['future'] = 'Future levels';
+$lang['present'] ='Current levels';
+$lang['il'] ='il';
+$lang['cl'] ='cl';
+$lang['fl'] ='fl';
+$lang['fl2'] ='fl2';
+$lang['fl3'] ='fl3';
+$lang['al'] ='al';
+$lang['codeEffective'] ='E';
+$lang['codePlanned'] ='P';
+$lang['NoV0'] ='IL is not defined';
+$lang['NoVC'] ='CL is not defined';
+$lang['NoVF'] ='FL is not defined';
+$lang['HiVC'] ='CL is higher than IL';
+$lang['HiVF'] ='FL is higher than CL';
+$lang['LoVC'] ='CL is lower than IL without effective measures';
+$lang['LoVF'] ='FL is lower than CL without programmed measures';
+$lang['ErrScn'] ='Inconsistency on scenario ';
+$lang['NRiskLabel'] ='Number of risks';
+$lang['MaxCLabel' ] ='Max current risk level';
+$lang['MeanCLabel'] ='Mean current risk level';
+$lang['QMeanCLabel'] ='Quadratic current risk level';
+$lang['MaxFLabel' ] ='Max future risk level';
+$lang['MeanFLabel'] ='Mean future risk level';
+$lang['QMeanFLabel'] ='Quadratic future risk level';
+?>

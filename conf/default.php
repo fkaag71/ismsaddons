@@ -5,5 +5,5 @@
  * @author François KAAG
  */
 
-$conf['lang']    = 'fr';
-$conf['param'] = '';
+$conf['param'] = 'param:risk';
+$conf['auto'] = 0;

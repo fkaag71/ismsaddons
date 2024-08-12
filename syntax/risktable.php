@@ -6,15 +6,12 @@
  * @author  François KAAG <francois.kaag@cardynal.fr>
  */
 
-require_once(DOKU_PLUGIN.'ismsaddons/syntax/ismslocale.php');
-
+use dokuwiki\Utf8\Clean;
 class syntax_plugin_ismsaddons_risktable extends \dokuwiki\Extension\SyntaxPlugin
 {
     public function __construct() {
 	$this->triples =& plugin_load('helper', 'strata_triples');
 
-        $this->locale = new ISMSLocale();
-        $this->labels = $this->locale->vlabel[$this->getConf('lang')];
         $this->pscope = $this->getConf('param');
 	}
 
@@ -67,7 +64,6 @@ class syntax_plugin_ismsaddons_risktable extends \dokuwiki\Extension\SyntaxPlugi
 	
     public function render($mode, Doku_Renderer $R, $data) {
 	global $ID;
-        $labels=$this->labels;
 
 	$scope = GetNS ($ID);
 	if ($this->pscope == '') $pscope = ($scope == ''?'param#':$scope.':param#');
@@ -75,10 +71,10 @@ class syntax_plugin_ismsaddons_risktable extends \dokuwiki\Extension\SyntaxPlugi
 
 	if($mode == 'xhtml') {
 		
-		$tgrav = $this->getParam($this->locale->remove_accents($labels['impact']),$pscope);		
-		$tvrai = $this->getParam($this->locale->remove_accents($labels['likelihood']),$pscope);
-		$tlevel = $this->getParam($this->locale->remove_accents($labels['RiskLevel']),$pscope);
-		$tcolor = $this->getParam($this->locale->remove_accents($labels['RiskColor']),$pscope);
+		$tgrav = $this->getParam(Clean::deaccent($this->getLang('impact')),$pscope);		
+		$tvrai = $this->getParam(Clean::deaccent($this->getLang('likelihood')),$pscope);
+		$tlevel = $this->getParam(Clean::deaccent($this->getLang('RiskLevel')),$pscope);
+		$tcolor = $this->getParam(Clean::deaccent($this->getLang('RiskColor')),$pscope);
 		
 		$i = 1;
 		foreach ($tlevel as $level=>$limit)
@@ -94,7 +90,7 @@ class syntax_plugin_ismsaddons_risktable extends \dokuwiki\Extension\SyntaxPlugi
 		foreach ($trisk as $erisk)
 		{
 			$rname = noNS($erisk['subject']);
-			$trgrav = $this->triples->fetchTriples($erisk['subject'],$labels['impact'],null,null);
+			$trgrav = $this->triples->fetchTriples($erisk['subject'],$this->getLang('impact'),null,null);
 			if ($trgrav) {
 				$grav= intval($trgrav[0]['object']);
 			};
@@ -103,12 +99,12 @@ class syntax_plugin_ismsaddons_risktable extends \dokuwiki\Extension\SyntaxPlugi
 			$tscn = $this->triples->fetchTriples($erisk['subject'],"scenarios",null,null);
 			foreach ($tscn as $escn)
 			{
-				$tvc = $this->triples->fetchTriples($escn['object'],$labels['cl'],null,null);
+				$tvc = $this->triples->fetchTriples($escn['object'],$this->getLang('cl'),null,null);
 				if ($tvc) { 
 					$vc = intval($tvc[0]['object']); 
 					if ($vc > $vcmax) $vcmax = $vc;
 					}
-				$tvf = $this->triples->fetchTriples($escn['object'],$labels['fl'],null,null);
+				$tvf = $this->triples->fetchTriples($escn['object'],$this->getLang('fl'),null,null);
 				if ($tvf) { 
 					$vf = intval($tvf[0]['object']); 
 					if ($vf > $vfmax) $vfmax = $vf;
@@ -197,7 +193,7 @@ a#risk {
 			$R->doc .="<th>".$vlabel."</th>";
 		}
 		$R->doc .="</tfoot></table>";
-		$R ->doc .= "<span class='risk present'>".$labels['present']."</span> <span class='risk future'>".$labels['future']."</span>";
+		$R ->doc .= "<span class='risk present'>".$this->getLang('present')."</span> <span class='risk future'>".$this->getLang('future')."</span>";
 		
 		return true;
    }
