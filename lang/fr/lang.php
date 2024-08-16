@@ -1,5 +1,6 @@
 <?php
 $lang['measures'] ='mesures';
+$lang['measures1'] ='mesures1';
 $lang['measures2'] ='mesures2';
 $lang['measures3'] ='mesures3';
 $lang['scenarios'] ='scenarios';
@@ -9,16 +10,20 @@ $lang['criterion'] ='Critère';
 $lang['likelihood'] ='vraisemblance';
 $lang['RiskLevel'] ='NiveauRisque';
 $lang['RiskColor'] ='CouleurRisque';
+$lang['RiskClass'] = 'ClasseRisque';
 $lang['future'] = 'Niveaux futurs';
 $lang['present'] ='Niveaux courants';
 $lang['il'] ='v0';
 $lang['cl'] ='vc';
 $lang['fl'] ='vf';
+$lang['fl1'] ='vf1';
 $lang['fl2'] ='vf2';
 $lang['fl3'] ='vf3';
 $lang['al']='va';
+$lang['afl']='vfa';
 $lang['codeEffective'] ='E';
 $lang['codePlanned'] ='P';
+$lang['deadline'] = 'Echéance';
 $lang['NoV0'] ='V0 non définie';
 $lang['NoVC'] ='VC non définie';
 $lang['NoVF'] ='VF non définie';

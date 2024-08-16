@@ -29,11 +29,11 @@ Under these conventions:
 
 
 RECENT CHANGES TO BE FURTHER DOCUMENTED
-For each scenario, measures can now be identified as Measures, Measures2 or Measures3, by decreasing effect on the scenario.
-The corresponding plausibilities are VF, VF2 and VF3.
-An automated Va plausibility is computed and set to VF if all measures in Measures are effective, then VF2 and VF3 where they are complemented with measures from Measures2 and Measures3.
+For each scenario, measures can now be identified as Measures1, Measures2 or Measures3, by decreasing effect on the scenario.
+The corresponding plausibilities are VF1, VF2 and VF3.
+An automated Va plausibility is computed and set to VF1 if all measures in Measures1 are effective, then VF2 and VF3 where they are complemented with measures from Measures2 and Measures3.
 
-If the auto configuration attribute is set, Vf is copied to Vc.
+If the auto configuration attribute is set, Va is copied to Vc.
 
 New attributes are also automatically computed for Risks, Vraisemblance as the maximum plausibility of associated scenarios and NiveauRisque as the product of Vraisemblance and Impact.
 

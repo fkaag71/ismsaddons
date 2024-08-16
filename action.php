@@ -14,6 +14,24 @@ class action_plugin_ismsaddons extends ActionPlugin
 {
     public function __construct() {
 	$this->triples =& plugin_load('helper', 'strata_triples');
+
+        $rlevels = [];
+        $rltriples = $this->triples->fetchTriples($this->getConf('param')."#".$this->getLang('RiskLevel'),null,null,null);
+        foreach ($rltriples as $rltriple)
+        {
+             if ($rltriple['predicate']!=$this->triples->getConf('title_key')) {
+                $rlevels[$rltriple['predicate']]=$rltriple['object'];
+             }
+         }
+         asort($rlevels,SORT_NUMERIC);
+
+         $i = 1;
+         $this->rlabel[0]="Unknown";
+         foreach ($rlevels as $label=> $value)
+         {
+            for (;$i<=$value;$i++) $this->rlabel[$i]=$label;
+         }
+
 	}	
     /** @inheritDoc */
     public function register(EventHandler $controller)
@@ -26,16 +44,36 @@ class action_plugin_ismsaddons extends ActionPlugin
 		$properties = $this->triples->fetchTriples ($item,$predicate,null,null);
 		if ($properties)
 			return ($properties[0]["object"]);
-		else
+		else {
+			syslog(LOG_INFO, "Missing property ".$predicate." for ".$item);	
 			return null;
+		}
 	}
 
 	function changeProperty($item,$predicate,$value)
 	{
+		if (is_null($predicate)) syslog(LOG_INFO, "Missing predicate");
+
 		$this->triples->removeTriples($item,$predicate,null,null);
 		$this->triples->addTriple($item, $predicate,$value,$item);		
 	}
-	
+	function checkMes($scnID,$meslabel,$tmes,&$deadline)
+	{
+		$res = true;
+		$deadline = "";
+                $lmes = $this->triples->fetchTriples($scnID,$this->getLang($meslabel),null,null);
+		foreach ($lmes as $emes) {
+			$ames = $tmes[$emes['object']];
+			$this->triples->addTriple($scnID,$this->getLang("measures"),$emes['object'],$scnID);
+			if ($ames['status'] == 'E') continue;
+			$res = false;
+			if (($ames['status'] == 'P') && ($ames['deadline']> $deadline)) {
+				$deadline = $ames['deadline'];
+				}
+               		}
+		return $res;
+	}
+
     /**
      * Event handler for COMMON_WIKIPAGE_SAVE
      *
@@ -60,7 +98,7 @@ class action_plugin_ismsaddons extends ActionPlugin
 		{
 			$mesID = $emes['subject'];
 			$status = $this->getProperty($mesID,$this->getLang("status"));
-			$deadline = $this->getProperty($mesID,$this->getLang("deadline"));
+			$deadline = ($status == 'P' ? $this->getProperty($mesID,$this->getLang("deadline")):"");
 			$tmes[$mesID]= ["status"=>$status,"deadline"=>$deadline];			
 		}
 		
@@ -68,58 +106,67 @@ class action_plugin_ismsaddons extends ActionPlugin
 		foreach ($lscn as $escn)
 		{
 			$scnID= $escn['subject'];
-			$lmes1 = $this->triples->fetchTriples($scnID,$this->getLang("measures"),null,null);
-			$lmes2 = $this->triples->fetchTriples($scnID,$this->getLang("measures2"),null,null);
-			$lmes3 = $this->triples->fetchTriples($scnID,$this->getLang("measures3"),null,null);		
-			
 			$level = 3;
-			foreach ($lmes3 as $emes)
-			{
-				if ($tmes[$emes['object']]['status'] != 'E')
-				{ $level = 2; break;}				
-			}
-			foreach ($lmes2 as $emes)
-			{
-				if ($tmes[$emes['object']]['status'] != 'E')
-				{$level = 1; break;}				
-			}
-			foreach ($lmes1 as $emes)
-			{
 
-				if ($tmes[$emes['object']]['status'] != 'E')
-				{$level = 0; break;}				
-			}				
+			if (! $this->checkMes($scnID,"measures3",$tmes,$deadline3)) $level = 2;
+                        if (! $this->checkMes($scnID,"measures2",$tmes,$deadline2)) $level = 1;
+                        if (! $this->checkMes($scnID,"measures1",$tmes,$deadline1)) $level = 0;
+
+
 			switch ($level)
 			{
-				case 1: $VPred = "fl"; break;
-				case 2: $VPred = "fl2"; break;
-				case 3: $VPred = "fl3"; break;
+				case 1: {
+					$VPred = "fl1"; $VFPred = "fl2"; $deadline = $deadline2;
+					break;
+					}
+				case 2: {
+					$VPred = "fl2"; $VFPred = "fl3"; $deadline = $deadline3;
+					break;
+					}
+				case 3: {
+					$VPred = "fl3"; $VFPred = "fl3"; $deadline = "-";
+					break;
+					}
 				case 0:
-				default: $VPred = "il";
-			}	
-			$Va = $this->getProperty($scnID,$this->getLang($VPred));				
+				default: {
+					 $VPred = "il"; $VFPred = "fl1"; $deadline = $deadline1;
+					}
+			}
+
+			$Va = $this->getProperty($scnID,$this->getLang($VPred)) ?? 0;
+			$VFa = $this->getProperty($scnID,$this->getLang($VFPred)) ?? 0;
+
 			$this->changeProperty($scnID,$this->getLang("al"),$Va);
+			$this->changeProperty($scnID,$this->getLang("afl"),$VFa);
+			$this->changeProperty($scnID,$this->getLang("deadline"),$deadline);
+
 			if ($this->getConf('auto'))
 			{
 				$this->changeProperty($scnID,$this->getLang("cl"),$Va);
+				$this->changeProperty($scnID,$this->getLang("fl"),$VFa);
 			}
 		}	
-		
+
 		foreach ($lrisk as $erisk)
 		{
 			$riskID = $erisk['subject'];
 			$impact = $this->getProperty($riskID,$this->getLang("impact"));
 			$lscn=$this->triples->fetchTriples($riskID,$this->getLang("scenarios"),null,null);
-			$V = 0;
+			$VR = $VFR = 0;
 			
 			foreach ($lscn as $escn)
 			{
-				$Vc = $this->getProperty($escn['object'],$this->getLang("cl"));
-				if ($Vc > $V) $V = $Vc;
-			}			
-			$this->changeProperty($riskID,$this->getLang("likelihood"),$V);
-			$this->changeProperty($riskID,$this->getLang("RiskLevel"),$impact*$V);
-		}		
-		
+				$Vc = $this->getProperty($escn['object'],$this->getLang("cl")) ?? 0;
+				if ($Vc > $VR) $VR = $Vc;
+
+               $Vf = $this->getProperty($escn['object'],$this->getLang("fl")) ?? 0;
+               if ($Vf > $VFR) $VFR = $Vf;
+			}
+
+			$this->changeProperty($riskID,$this->getLang("cl"),$VR);
+			$this->changeProperty($riskID,$this->getLang("fl"),$VFR);
+			$this->changeProperty($riskID,$this->getLang("RiskLevel"),$impact*$VR);
+            $this->changeProperty($riskID,$this->getLang("RiskClass"),$this->rlabel[$impact*$VR]);
+		} 		
     }
 }
