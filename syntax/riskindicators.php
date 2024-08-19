@@ -44,15 +44,27 @@ class syntax_plugin_ismsaddons_riskindicators extends \dokuwiki\Extension\Syntax
         return $data;
     }
 
-	function getParam ($key,$scope) {
-		$table= $this->triples->fetchTriples($scope.$key,null,null,null);
-                $res=[];
-		foreach ($table as $elem)
-		{
-			if ($elem['predicate']!='entry title') { $res[$elem['predicate']]=$elem['object']; };
-		}		
-		asort ($res,SORT_NUMERIC);
-		return $res;
+
+        function getParam ($key,$scope) {
+                $property = Clean::deaccent($this->getLang($key));
+                $table= $this->triples->fetchTriples($scope.$property,null,null,null);
+                foreach ($table as $elem)
+                {
+                        if ($elem['predicate']!=$this->triples->getConf('title_key')) { $res[$elem['predicate']]=$elem['object']; };
+                }
+                asort ($res,SORT_NUMERIC);
+                return $res;
+        }
+
+        function getValue ($subject,$property) {
+                $result = null;
+                $predicate = $this->getLang($property);
+                $triple = $this->triples->fetchTriples($subject,$predicate,null,null);
+                if ($triple) {
+                        $result = intval($triple[0]['object']);
+                }
+                return $result;
+
 	}
 	
 	function printRow ($R,$tcrit,$label,$table,$lcolor)
@@ -80,9 +92,9 @@ class syntax_plugin_ismsaddons_riskindicators extends \dokuwiki\Extension\Syntax
 
 	if($mode == 'xhtml') {
 	
-		$tcrit = $this->getParam(Clean::deaccent($this->getLang('criterion')),$scope);
-		$tlevel = $this->getParam(Clean::deaccent($this->getLang('RiskLevel')),$scope);
-		$tcolor = $this->getParam(Clean::deaccent($this->getLang('RiskColor')),$scope);
+		$tcrit = $this->getParam('criterion',$scope);
+		$tlevel = $this->getParam('RiskLevel',$scope);
+		$tcolor = $this->getParam('RiskColor',$scope);
 		
 		$i = 1;
 		foreach ($tlevel as $level=>$limit)
@@ -103,31 +115,12 @@ class syntax_plugin_ismsaddons_riskindicators extends \dokuwiki\Extension\Syntax
 			
 			foreach ($trisk as $erisk)
 			{
-				$trgrav = $this->triples->fetchTriples($erisk['subject'],$this->getLang('impact'),null,null);
-
-				if ($trgrav) {
-					$grav= intval($trgrav[0]['object']);
-				};
-				
-				$vcmax = $vfmax = 0;
-				$tscn = $this->triples->fetchTriples($erisk['subject'],$this->getLang('scenarios'),null,null);
-
-				foreach ($tscn as $escn)
-				{
-					$tvc = $this->triples->fetchTriples($escn['object'],$this->getLang('cl'),null,null);
-					if ($tvc) { 
-						$vc = intval($tvc[0]['object']); 
-						if ($vc > $vcmax) $vcmax = $vc;
-						}
-					$tvf = $this->triples->fetchTriples($escn['object'],$this->getLang('fl'),null,null);
-					if ($tvf) { 
-						$vf = intval($tvf[0]['object']); 
-						if ($vf > $vfmax) $vfmax = $vf;
-						}			
-				}
-				$risklevelc = $grav*$vcmax;
-				$risklevelf = $grav*$vfmax;
-				
+				$riskId = $erisk['subject'];
+				$grav = $this->getValue($riskId,'impact');
+				$VcR = $this->getValue($riskId,'cl');
+				$VfR = $this->getValue($riskId,'fl');
+				$risklevelc = $grav*$VcR;
+				$risklevelf = $grav*$VfR;				
 
 				if ($risklevelc > $cmaxc) $cmaxc = $risklevelc;
 				if ($risklevelf > $cmaxf) $cmaxf = $risklevelf;

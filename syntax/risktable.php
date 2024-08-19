@@ -46,12 +46,6 @@ class syntax_plugin_ismsaddons_risktable extends \dokuwiki\Extension\SyntaxPlugi
         return $data;
     }
 
-	function icmp($a,$b)
-	{
-		$d = intval($a) - intval($b);
-		return ($d>0)-($d<0);
-	}
-
 	function getParam ($key,$scope) {
 		$table= $this->triples->fetchTriples($scope.$key,null,null,null);
 		foreach ($table as $elem)
@@ -61,6 +55,15 @@ class syntax_plugin_ismsaddons_risktable extends \dokuwiki\Extension\SyntaxPlugi
 		asort ($res,SORT_NUMERIC);
 		return $res;
 	}
+
+	function getValue ($subject,$predicate) {
+		$result = null;
+		$triple = $this->triples->fetchTriples($subject,$predicate,null,null);
+		if ($triple) {
+			$result = intval($triple[0]['object']);
+		}
+		return $result;
+}
 	
     public function render($mode, Doku_Renderer $R, $data) {
 	global $ID;
@@ -89,29 +92,14 @@ class syntax_plugin_ismsaddons_risktable extends \dokuwiki\Extension\SyntaxPlugi
 		
 		foreach ($trisk as $erisk)
 		{
-			$rname = noNS($erisk['subject']);
-			$trgrav = $this->triples->fetchTriples($erisk['subject'],$this->getLang('impact'),null,null);
-			if ($trgrav) {
-				$grav= intval($trgrav[0]['object']);
-			};
-						
-			$vcmax = $vfmax = 0;
-			$tscn = $this->triples->fetchTriples($erisk['subject'],"scenarios",null,null);
-			foreach ($tscn as $escn)
-			{
-				$tvc = $this->triples->fetchTriples($escn['object'],$this->getLang('cl'),null,null);
-				if ($tvc) { 
-					$vc = intval($tvc[0]['object']); 
-					if ($vc > $vcmax) $vcmax = $vc;
-					}
-				$tvf = $this->triples->fetchTriples($escn['object'],$this->getLang('fl'),null,null);
-				if ($tvf) { 
-					$vf = intval($tvf[0]['object']); 
-					if ($vf > $vfmax) $vfmax = $vf;
-					}			
-			}
-			$VC[$grav][$vcmax][]=$rname;
-			$VF[$grav][$vfmax][]=$rname;			
+			$riskId = $erisk['subject'];
+			$rname = noNS($riskId);
+			$grav = $this->getValue($riskId,$this->getLang('impact'));
+			$VcR = $this->getValue($riskId,$this->getLang('cl'));
+			$VfR = $this->getValue($riskId,$this->getLang('fl'));
+
+			$VC[$grav][$VcR][]=$rname;
+			$VF[$grav][$VfR][]=$rname;			
 		}
 		
 		$R->doc .="<style>
