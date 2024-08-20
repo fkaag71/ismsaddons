@@ -3,6 +3,7 @@ $lang['measures'] ='measures';
 $lang['measures1'] ='measures1';
 $lang['measures2'] ='measures2';
 $lang['measures3'] ='measures3';
+$lang['measures4'] ='measures4';
 $lang['scenarios'] ='scenarios';
 $lang['status'] ='status';
 $lang['impact'] ='Impact';
