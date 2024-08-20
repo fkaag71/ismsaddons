@@ -37,6 +37,7 @@ class action_plugin_ismsaddons extends ActionPlugin
     public function register(EventHandler $controller)
     {
         $controller->register_hook('PARSER_METADATA_RENDER', 'AFTER', $this, 'updateRiskData',null,100);
+        $controller->register_hook('STRATA_PREVIEW_METADATA_RENDER', 'AFTER', $this, 'updateRiskData',null,100);
     }
 
 	function getProperty($item,$predicate)
