@@ -53,11 +53,18 @@ class action_plugin_ismsaddons extends ActionPlugin
 
 	function changeProperty($item,$predicate,$value)
 	{
-		if (is_null($predicate)) syslog(LOG_INFO, "Missing predicate");
+		if (is_null($predicate)) {
+			syslog(LOG_INFO, "Missing predicate");
+			return;
+		}
 
-		$this->triples->removeTriples($item,$predicate,null,null);
-		$this->triples->addTriple($item, $predicate,$value,$item);		
+		if ($this->getProperty($item,$predicate) != $value) {
+
+			$this->triples->removeTriples($item,$predicate,null,null);
+			$this->triples->addTriple($item, $predicate,$value,$item);
+		}
 	}
+
 	function checkMes($scnID,$meslabel,$tmes,&$deadline)
 	{
 		$res = true;
