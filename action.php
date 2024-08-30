@@ -13,6 +13,7 @@ use dokuwiki\Extension\Event;
 class action_plugin_ismsaddons extends ActionPlugin
 {
     public function __construct() {
+
 	$this->triples =& plugin_load('helper', 'strata_triples');
 
         $rlevels = [];
@@ -59,7 +60,6 @@ class action_plugin_ismsaddons extends ActionPlugin
 		}
 
 		if ($this->getProperty($item,$predicate) != $value) {
-
 			$this->triples->removeTriples($item,$predicate,null,null);
 			$this->triples->addTriple($item, $predicate,$value,$item);
 		}
@@ -78,29 +78,22 @@ class action_plugin_ismsaddons extends ActionPlugin
 			if (($ames['status'] == 'P') && ($ames['deadline']> $deadline)) {
 				$deadline = $ames['deadline'];
 				}
+			else $deadline = "XXXX";
                		}
 		return $res;
 	}
 
-    /**
-     * Event handler for COMMON_WIKIPAGE_SAVE
-     *
-     * @see https://www.dokuwiki.org/devel:events:COMMON_WIKIPAGE_SAVE
-     * @param Event $event Event object
-     * @param mixed $param optional parameter passed when event was registered
-     * @return void
-     */
     public function updateRiskData(Event $event, $param)
     {
 		$ID = $event->data['page'];
 		$type = $this->getProperty($ID,"is a");
-		
+
 		if (!in_array($type,array('mes','scn','risk'),true)) return;
 
 		$lrisk = $this->triples->fetchTriples(null,"is a","risk",null);
 		$lscn = $this->triples->fetchTriples(null,"is a","scn",null);
 		$lmes = $this->triples->fetchTriples(null,"is a","mes",null);
-		
+
 		$tmes = [];
 		foreach ($lmes as $emes)
 		{
@@ -109,7 +102,6 @@ class action_plugin_ismsaddons extends ActionPlugin
 			$deadline = ($status == 'P' ? $this->getProperty($mesID,$this->getLang("deadline")):"");
 			$tmes[$mesID]= ["status"=>$status,"deadline"=>$deadline];			
 		}
-		
 		$tscn=[];
 		foreach ($lscn as $escn)
 		{
@@ -147,7 +139,6 @@ class action_plugin_ismsaddons extends ActionPlugin
 			$this->changeProperty($scnID,$this->getLang("al"),$Va);
 			$this->changeProperty($scnID,$this->getLang("afl"),$VFa);
 			$this->changeProperty($scnID,$this->getLang("deadline"),$deadline);
-
 			if ($this->getConf('auto'))
 			{
 				$this->changeProperty($scnID,$this->getLang("cl"),$Va);
