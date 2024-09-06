@@ -16,23 +16,6 @@ class action_plugin_ismsaddons extends ActionPlugin
 
 	$this->triples =& plugin_load('helper', 'strata_triples');
 
-        $rlevels = [];
-        $rltriples = $this->triples->fetchTriples($this->getConf('param')."#".$this->getLang('RiskLevel'),null,null,null);
-        foreach ($rltriples as $rltriple)
-        {
-             if ($rltriple['predicate']!=$this->triples->getConf('title_key')) {
-                $rlevels[$rltriple['predicate']]=$rltriple['object'];
-             }
-         }
-         asort($rlevels,SORT_NUMERIC);
-
-         $i = 1;
-         $this->rlabel[0]="Unknown";
-         foreach ($rlevels as $label=> $value)
-         {
-            for (;$i<=$value;$i++) $this->rlabel[$i]=$label;
-         }
-
 	}	
     /** @inheritDoc */
     public function register(EventHandler $controller)
@@ -85,14 +68,33 @@ class action_plugin_ismsaddons extends ActionPlugin
 
     public function updateRiskData(Event $event, $param)
     {
-		$ID = $event->data['page'];
-		$type = $this->getProperty($ID,"is a");
+	$ID = $event->data['page'];
+	$type = $this->getProperty($ID,"is a");
 
-		if (!in_array($type,array('mes','scn','risk'),true)) return;
+	if (!in_array($type,array('mes','scn','risk'),true)) return;
 
-		$lrisk = $this->triples->fetchTriples(null,"is a","risk",null);
-		$lscn = $this->triples->fetchTriples(null,"is a","scn",null);
-		$lmes = $this->triples->fetchTriples(null,"is a","mes",null);
+	$lrisk = $this->triples->fetchTriples(null,"is a","risk",null);
+	$lscn = $this->triples->fetchTriples(null,"is a","scn",null);
+	$lmes = $this->triples->fetchTriples(null,"is a","mes",null);
+
+// Assign risk classes to risk levels
+        $rlevels = [];
+       	$rltriples = $this->triples->fetchTriples($this->getConf('param')."#".$this->getLang('RiskLevel'),null,null,null);
+        foreach ($rltriples as $rltriple)
+       	{
+             if ($rltriple['predicate']!=$this->triples->getConf('title_key')) {
+       	        $rlevels[$rltriple['predicate']]=$rltriple['object'];
+            }
+        }
+         asort($rlevels,SORT_NUMERIC);
+
+         $i = 1;
+         $this->rlabel[0]="Unknown";
+         foreach ($rlevels as $label=> $value)
+         {
+            for (;$i<=$value;$i++) $this->rlabel[$i]=$label;
+         }
+
 
 		$tmes = [];
 		foreach ($lmes as $emes)
@@ -106,12 +108,15 @@ class action_plugin_ismsaddons extends ActionPlugin
 		foreach ($lscn as $escn)
 		{
 			$scnID= $escn['subject'];
+			$this->triples->removeTriples($scnID,$this->getLang("measures"),null,null);
+
 			$level = 3;
 
 			if (! $this->checkMes($scnID,"measures3",$tmes,$deadline3)) $level = 2;
                         if (! $this->checkMes($scnID,"measures2",$tmes,$deadline2)) $level = 1;
                         if (! $this->checkMes($scnID,"measures1",$tmes,$deadline1)) $level = 0;
 			$this->checkMes($scnID,"measures4",$tmes,$deadline4);
+
 
 			switch ($level)
 			{
