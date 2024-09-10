@@ -54,15 +54,19 @@ class action_plugin_ismsaddons extends ActionPlugin
 		$deadline = "";
                 $lmes = $this->triples->fetchTriples($scnID,$this->getLang($meslabel),null,null);
 		foreach ($lmes as $emes) {
+
 			$ames = $tmes[$emes['object']];
 			$this->triples->addTriple($scnID,$this->getLang("measures"),$emes['object'],$scnID);
 			if ($ames['status'] == 'E') continue;
 			$res = false;
-			if (($ames['status'] == 'P') && ($ames['deadline']> $deadline)) {
-				$deadline = $ames['deadline'];
+			if ($ames['status'] == 'P') {
+				if ($ames['deadline']> $deadline) {
+					$deadline = $ames['deadline'];
 				}
+			}
 			else $deadline = "XXXX";
                		}
+
 		return $res;
 	}
 
@@ -116,7 +120,6 @@ class action_plugin_ismsaddons extends ActionPlugin
                         if (! $this->checkMes($scnID,"measures2",$tmes,$deadline2)) $level = 1;
                         if (! $this->checkMes($scnID,"measures1",$tmes,$deadline1)) $level = 0;
 			$this->checkMes($scnID,"measures4",$tmes,$deadline4);
-
 
 			switch ($level)
 			{
