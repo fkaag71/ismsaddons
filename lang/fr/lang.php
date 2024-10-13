@@ -22,6 +22,7 @@ $lang['fl2'] ='vf2';
 $lang['fl3'] ='vf3';
 $lang['al']='va';
 $lang['afl']='vfa';
+$lang['stage']='stade';
 $lang['codeEffective'] ='E';
 $lang['codePlanned'] ='P';
 $lang['deadline'] = 'Echéance';

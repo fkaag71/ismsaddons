@@ -124,20 +124,20 @@ class action_plugin_ismsaddons extends ActionPlugin
 			switch ($level)
 			{
 				case 1: {
-					$VPred = "fl1"; $VFPred = "fl2"; $deadline = $deadline2;
+					$VPred = "fl1"; $VFPred = "fl2"; $deadline = $deadline2; $stage="measures2";
 					break;
 					}
 				case 2: {
-					$VPred = "fl2"; $VFPred = "fl3"; $deadline = $deadline3;
+					$VPred = "fl2"; $VFPred = "fl3"; $deadline = $deadline3; $stage="measures3";
 					break;
 					}
 				case 3: {
-					$VPred = "fl3"; $VFPred = "fl3"; $deadline = "-";
+					$VPred = "fl3"; $VFPred = "fl3"; $deadline = "-"; $stage = "measures3";
 					break;
 					}
 				case 0:
 				default: {
-					 $VPred = "il"; $VFPred = "fl1"; $deadline = $deadline1;
+					 $VPred = "il"; $VFPred = "fl1"; $deadline = $deadline1; $stage = "measures1";
 					}
 			}
 
@@ -147,6 +147,7 @@ class action_plugin_ismsaddons extends ActionPlugin
 			$this->changeProperty($scnID,$this->getLang("al"),$Va);
 			$this->changeProperty($scnID,$this->getLang("afl"),$VFa);
 			$this->changeProperty($scnID,$this->getLang("deadline"),$deadline);
+			$this->changeProperty($scnID,$this->getLang("stage"),$this->getLang($stage));
 			if ($this->getConf('auto'))
 			{
 				$this->changeProperty($scnID,$this->getLang("cl"),$Va);

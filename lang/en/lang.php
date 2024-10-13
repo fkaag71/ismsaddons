@@ -22,6 +22,7 @@ $lang['fl2'] ='fl2';
 $lang['fl3'] ='fl3';
 $lang['al'] ='al';
 $lang['afl'] ='afl';
+$lang['stage'] = 'stage';
 $lang['codeEffective'] ='E';
 $lang['codePlanned'] ='P';
 $lang['deadline'] = 'Deadline';
