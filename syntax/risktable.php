@@ -37,12 +37,13 @@ class syntax_plugin_ismsaddons_risktable extends \dokuwiki\Extension\SyntaxPlugi
     public function connectTo($mode)
     {
         $this->Lexer->addSpecialPattern('~~RISKTABLE~~', $mode, 'plugin_ismsaddons_risktable');
+        $this->Lexer->addSpecialPattern('~~RISKTABLE:blank~~', $mode, 'plugin_ismsaddons_risktable');
     }
 
     /** @inheritDoc */
     public function handle($match, $state, $pos, Doku_Handler $handler)
     {
-        $data = array();
+        $data = array('blank' => ($match == "~~RISKTABLE:blank~~"));
         return $data;
     }
 
@@ -85,11 +86,13 @@ class syntax_plugin_ismsaddons_risktable extends \dokuwiki\Extension\SyntaxPlugi
 			for (;$i<=$limit;$i++)
 			{
 				$lcolor[$i]=$tcolor[$level];
+                                $tlevel[$i]=$level;
 			}
 		}
 		
 		$trisk = $this->triples->fetchTriples(null,"is a","risk",null);	
 		
+		if (!$data['blank']) {
 		foreach ($trisk as $erisk)
 		{
 			$riskId = $erisk['subject'];
@@ -101,29 +104,30 @@ class syntax_plugin_ismsaddons_risktable extends \dokuwiki\Extension\SyntaxPlugi
 			$VC[$grav][$VcR][]=$rname;
 			$VF[$grav][$VfR][]=$rname;			
 		}
-		
+		}
+
 		$R->doc .="<style>
-table {
+.risktable table {
 	border-collapse: collapse;
 	width:100%;
 	text-align: center;
 	vertical-align: center;
 	table-layout: fixed;
 }
-td {
+.risktable td {
     border: 1px solid #333;
 	overflow: hidden;
 	height: 120px;
 }
-th,
-tfoot,
-td:first-child {
+.risktable th,
+.risktable tfoot,
+.risktable td:first-child {
 	font-weight: bold;
 	text-align: center;
     background-color: grey;
     color: #fff;
 }
-.risk {
+.risktable .risk {
 	padding-left: 10px;
 	padding-right: 10px;
 	border-radius: 25px;
@@ -132,20 +136,21 @@ td:first-child {
 	display: inline-block;
 	color:white;
 }
-.rlink:any-link {
+.risktable .rlink:any-link {
 	color:white;
 }
-.future {
+.risktable .future {
 	background-color:green;
 }
-a#risk {
+.risktable a#risk {
 	color:white;
 }
-.present {
+.risktable .present {
 	background-color: blue;
 }
 </style>";
                 $base =strtok($_SERVER['REQUEST_URI'],'?');
+                $R->doc .= "<div class='risktable'>";
 		$R->doc .= "<table><tbody>";
 		foreach (array_reverse($tgrav) as $glabel =>$grav)
 		{
@@ -153,7 +158,7 @@ a#risk {
 			foreach ($tvrai as $vrai)
 			{				
 				$R->doc.="<td style='background-color:#".$lcolor[$grav*$vrai]."'>";	
-
+				if ($data['blank']) $R->doc .= $tlevel[$grav*$vrai];
 				$rnames=[];
 				if (isset($VC[$grav])) { 
                                    if (isset($VC[$grav][$vrai])) {$rnames=(array)$VC[$grav][$vrai]; } }
@@ -181,8 +186,10 @@ a#risk {
 			$R->doc .="<th>".$vlabel."</th>";
 		}
 		$R->doc .="</tfoot></table>";
-		$R ->doc .= "<span class='risk present'>".$this->getLang('present')."</span> <span class='risk future'>".$this->getLang('future')."</span>";
-		
+		if (!$data['blank']) {
+			$R ->doc .= "<span class='risk present'>".$this->getLang('present')."</span> <span class='risk future'>".$this->getLang('future')."</span>";
+			$R->doc .= "</div>";
+                }
 		return true;
    }
 	return false;
