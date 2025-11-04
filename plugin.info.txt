@@ -1,7 +1,7 @@
 base   ismsaddons
 author François KAAG
 email  francois.kaag@cardynal.fr
-date   2024-10-13
+date   2025-11-04
 name   ismsaddons plugin
 desc   Specific tokens for Cardynal ISMS Website
 url    https://github.com/fkaag71/ismsaddons

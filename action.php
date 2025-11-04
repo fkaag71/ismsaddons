@@ -30,7 +30,6 @@ class action_plugin_ismsaddons extends ActionPlugin
 		if ($properties)
 			return ($properties[0]["object"]);
 		else {
-			syslog(LOG_INFO, "Missing property ".$predicate." for ".$item);	
 			return null;
 		}
 	}
@@ -38,7 +37,6 @@ class action_plugin_ismsaddons extends ActionPlugin
 	function changeProperty($item,$predicate,$value)
 	{
 		if (is_null($predicate)) {
-			syslog(LOG_INFO, "Missing predicate");
 			return;
 		}
 
@@ -94,6 +92,7 @@ class action_plugin_ismsaddons extends ActionPlugin
 
          $i = 1;
          $this->rlabel[0]="Unknown";
+
          foreach ($rlevels as $label=> $value)
          {
             for (;$i<=$value;$i++) $this->rlabel[$i]=$label;
@@ -143,11 +142,14 @@ class action_plugin_ismsaddons extends ActionPlugin
 
 			$Va = $this->getProperty($scnID,$this->getLang($VPred)) ?? 0;
 			$VFa = $this->getProperty($scnID,$this->getLang($VFPred)) ?? 0;
+			$Vmin = $this->getProperty($scnId,$this->getLang("fl3")) ?? $this->getProperty($scnId,$this->getLang("fl2")) ?? $this->getProperty($scnId,$this->getLang("fl1"));
 
 			$this->changeProperty($scnID,$this->getLang("al"),$Va);
 			$this->changeProperty($scnID,$this->getLang("afl"),$VFa);
+			$this->changeProperty($scnID,$this->getLang("lmin"),$Vmin);
 			$this->changeProperty($scnID,$this->getLang("deadline"),$deadline);
 			$this->changeProperty($scnID,$this->getLang("stage"),$this->getLang($stage));
+
 			if ($this->getConf('auto'))
 			{
 				$this->changeProperty($scnID,$this->getLang("cl"),$Va);
@@ -160,21 +162,26 @@ class action_plugin_ismsaddons extends ActionPlugin
 			$riskID = $erisk['subject'];
 			$impact = $this->getProperty($riskID,$this->getLang("impact"));
 			$lscn=$this->triples->fetchTriples($riskID,$this->getLang("scenarios"),null,null);
-			$VR = $VFR = 0;
+			$VR = $VFR = $VminR = 0;
 			
 			foreach ($lscn as $escn)
 			{
 				$Vc = $this->getProperty($escn['object'],$this->getLang("cl")) ?? 0;
 				if ($Vc > $VR) $VR = $Vc;
 
-               $Vf = $this->getProperty($escn['object'],$this->getLang("fl")) ?? 0;
-               if ($Vf > $VFR) $VFR = $Vf;
+ 		$Vf = $this->getProperty($escn['object'],$this->getLang("fl")) ?? 0;
+             	if ($Vf > $VFR) $VFR = $Vf;
+		$Vmin = $this->getProperty($escn['object'],$this->getLang("lmin")) ?? 0;
+		if ($Vmin > $VminR) $VminR = $Vmin;
 			}
 
 			$this->changeProperty($riskID,$this->getLang("cl"),$VR);
 			$this->changeProperty($riskID,$this->getLang("fl"),$VFR);
+			$this->changeProperty($riskID,$this->getLang("lmin"),$VminR);
 			$this->changeProperty($riskID,$this->getLang("RiskLevel"),$impact*$VR);
             $this->changeProperty($riskID,$this->getLang("RiskClass"),$this->rlabel[$impact*$VR]);
 		} 		
+
+
     }
 }

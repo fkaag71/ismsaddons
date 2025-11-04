@@ -100,9 +100,11 @@ class syntax_plugin_ismsaddons_risktable extends \dokuwiki\Extension\SyntaxPlugi
 			$grav = $this->getValue($riskId,$this->getLang('impact'));
 			$VcR = $this->getValue($riskId,$this->getLang('cl'));
 			$VfR = $this->getValue($riskId,$this->getLang('fl'));
+			$VminR = $this->getValue($riskId,$this->getLang('lmin'));
 
 			$VC[$grav][$VcR][]=$rname;
 			$VF[$grav][$VfR][]=$rname;			
+			$Vmin[$grav][$VminR][]=$rname;			
 		}
 		}
 
@@ -140,6 +142,9 @@ class syntax_plugin_ismsaddons_risktable extends \dokuwiki\Extension\SyntaxPlugi
 	color:white;
 }
 .risktable .future {
+	background-color:brown;
+}
+.risktable .final {
 	background-color:green;
 }
 .risktable a#risk {
@@ -175,7 +180,15 @@ class syntax_plugin_ismsaddons_risktable extends \dokuwiki\Extension\SyntaxPlugi
 				foreach ($rnames as $rname)
 				{
 						$R->doc .='<span class="risk future"><a href="'.$base.'?id='.$scope.':'.$rname.'" class="rlink">'.$rname.'</a></span>';
-				}				
+				}	
+				$rnames=[];
+				if (isset($Vmin[$grav])) { 
+                                   if (isset($Vmin[$grav][$vrai])) {$rnames=(array)$Vmin[$grav][$vrai]; } }
+
+				foreach ($rnames as $rname)
+				{
+						$R->doc .='<span class="risk final"><a href="'.$base.'?id='.$scope.':'.$rname.'" class="rlink">'.$rname.'</a></span>';
+				}			
 				$R->doc.="</td>";
 			}
 			$R->doc .="</tr>";
@@ -187,7 +200,7 @@ class syntax_plugin_ismsaddons_risktable extends \dokuwiki\Extension\SyntaxPlugi
 		}
 		$R->doc .="</tfoot></table>";
 		if (!$data['blank']) {
-			$R ->doc .= "<span class='risk present'>".$this->getLang('present')."</span> <span class='risk future'>".$this->getLang('future')."</span>";
+			$R ->doc .= "<span class='risk present'>".$this->getLang('present')."</span> <span class='risk future'>".$this->getLang('future')."</span> <span class='risk final'>".$this->getLang('final')."</span>";
 			$R->doc .= "</div>";
                 }
 		return true;
