@@ -142,7 +142,7 @@ class action_plugin_ismsaddons extends ActionPlugin
 
 			$Va = $this->getProperty($scnID,$this->getLang($VPred)) ?? 0;
 			$VFa = $this->getProperty($scnID,$this->getLang($VFPred)) ?? 0;
-			$Vmin = $this->getProperty($scnId,$this->getLang("fl3")) ?? $this->getProperty($scnId,$this->getLang("fl2")) ?? $this->getProperty($scnId,$this->getLang("fl1"));
+			$Vmin = $this->getProperty($scnID,$this->getLang("fl3")) ?? $this->getProperty($scnID,$this->getLang("fl2")) ?? $this->getProperty($scnID,$this->getLang("fl1"));
 
 			$this->changeProperty($scnID,$this->getLang("al"),$Va);
 			$this->changeProperty($scnID,$this->getLang("afl"),$VFa);
