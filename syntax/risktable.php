@@ -165,14 +165,13 @@ class syntax_plugin_ismsaddons_risktable extends \dokuwiki\Extension\SyntaxPlugi
 				$R->doc.="<td style='background-color:#".$lcolor[$grav*$vrai]."'>";	
 				if ($data['blank']) $R->doc .= $tlevel[$grav*$vrai];
 				$rnames=[];
-				if (isset($VC[$grav])) { 
-                                   if (isset($VC[$grav][$vrai])) {$rnames=(array)$VC[$grav][$vrai]; } }
+				if (isset($Vmin[$grav])) { 
+                                   if (isset($Vmin[$grav][$vrai])) {$rnames=(array)$Vmin[$grav][$vrai]; } }
 
-				foreach ( $rnames as $rname)
+				foreach ($rnames as $rname)
 				{
-						$R->doc .='<span class="risk present"><a href="'.$base.'?id='.$scope.':'.$rname.'" class="rlink" >'.$rname.'</a></span>';
-				}
-
+						$R->doc .='<span class="risk final"><a href="'.$base.'?id='.$scope.':'.$rname.'" class="rlink">'.$rname.'</a></span>';
+				}	
 				$rnames=[];
 				if (isset($VF[$grav])) { 
                                    if (isset($VF[$grav][$vrai])) {$rnames=(array)$VF[$grav][$vrai]; } }
@@ -181,14 +180,14 @@ class syntax_plugin_ismsaddons_risktable extends \dokuwiki\Extension\SyntaxPlugi
 				{
 						$R->doc .='<span class="risk future"><a href="'.$base.'?id='.$scope.':'.$rname.'" class="rlink">'.$rname.'</a></span>';
 				}	
-				$rnames=[];
-				if (isset($Vmin[$grav])) { 
-                                   if (isset($Vmin[$grav][$vrai])) {$rnames=(array)$Vmin[$grav][$vrai]; } }
+                                $rnames=[];
+				if (isset($VC[$grav])) { 
+                                   if (isset($VC[$grav][$vrai])) {$rnames=(array)$VC[$grav][$vrai]; } }
 
-				foreach ($rnames as $rname)
+				foreach ( $rnames as $rname)
 				{
-						$R->doc .='<span class="risk final"><a href="'.$base.'?id='.$scope.':'.$rname.'" class="rlink">'.$rname.'</a></span>';
-				}			
+						$R->doc .='<span class="risk present"><a href="'.$base.'?id='.$scope.':'.$rname.'" class="rlink" >'.$rname.'</a></span>';
+				}		
 				$R->doc.="</td>";
 			}
 			$R->doc .="</tr>";
@@ -200,7 +199,7 @@ class syntax_plugin_ismsaddons_risktable extends \dokuwiki\Extension\SyntaxPlugi
 		}
 		$R->doc .="</tfoot></table>";
 		if (!$data['blank']) {
-			$R ->doc .= "<span class='risk present'>".$this->getLang('present')."</span> <span class='risk future'>".$this->getLang('future')."</span> <span class='risk final'>".$this->getLang('final')."</span>";
+			$R ->doc .= "<span class='risk final'>".$this->getLang('final')."</span> <span class='risk future'>".$this->getLang('future')."</span> <span class='risk present'>".$this->getLang('present')."</span>";
 			$R->doc .= "</div>";
                 }
 		return true;
