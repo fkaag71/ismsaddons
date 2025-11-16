@@ -143,8 +143,10 @@ class action_plugin_ismsaddons extends ActionPlugin
 			$Va = $this->getProperty($scnID,$this->getLang($VPred)) ?? 0;
 			$VFa = $this->getProperty($scnID,$this->getLang($VFPred)) ?? 0;
 			$Vmin = $this->getProperty($scnID,$this->getLang("fl3")) ?? $this->getProperty($scnID,$this->getLang("fl2")) ?? $this->getProperty($scnID,$this->getLang("fl1"));
-
-			$this->changeProperty($scnID,$this->getLang("al"),$Va);
+                        
+                        $tscn[$scnID]=["Vc"=>$Va,"Vf"=>$VFa,"Vmin"=>$Vmin,"deadline"=>$deadline];
+			
+                        $this->changeProperty($scnID,$this->getLang("al"),$Va);
 			$this->changeProperty($scnID,$this->getLang("afl"),$VFa);
 			$this->changeProperty($scnID,$this->getLang("lmin"),$Vmin);
 			$this->changeProperty($scnID,$this->getLang("deadline"),$deadline);
@@ -166,20 +168,39 @@ class action_plugin_ismsaddons extends ActionPlugin
 			
 			foreach ($lscn as $escn)
 			{
-				$Vc = $this->getProperty($escn['object'],$this->getLang("cl")) ?? 0;
-				if ($Vc > $VR) $VR = $Vc;
+                            $scndata = $tscn[$escn['object']];
+                            $Vc = $scndata['Vc'];
+                            if ($Vc > $VR) {$VR = $Vc;}
 
- 		$Vf = $this->getProperty($escn['object'],$this->getLang("fl")) ?? 0;
-             	if ($Vf > $VFR) $VFR = $Vf;
-		$Vmin = $this->getProperty($escn['object'],$this->getLang("lmin")) ?? 0;
-		if ($Vmin > $VminR) $VminR = $Vmin;
+                            $Vf = $scndata['Vf'];
+                            if ($Vf > $VFR) {$VFR = $Vf;}
+                            $Vmin = $scndata['Vmin'];
+                            if ($Vmin > $VminR) {$VminR = $Vmin;}
 			}
+                        $deadlineR = "";
+                        foreach($lscn as $escn)
+                        {                          
+                            $scndata = $tscn[$escn['object']];
+                            if ($scndata['Vf'] == $VFR)
+                            {
+                                if ($scndata['deadline']>$deadlineR)
+                                {
+                                    $deadlineR = $scndata['deadline'];
+                                }
+                            }
+                                
+                        }
 
 			$this->changeProperty($riskID,$this->getLang("cl"),$VR);
 			$this->changeProperty($riskID,$this->getLang("fl"),$VFR);
 			$this->changeProperty($riskID,$this->getLang("lmin"),$VminR);
 			$this->changeProperty($riskID,$this->getLang("RiskLevel"),$impact*$VR);
-            $this->changeProperty($riskID,$this->getLang("RiskClass"),$this->rlabel[$impact*$VR]);
+                        $this->changeProperty($riskID,$this->getLang("RiskClass"),$this->rlabel[$impact*$VR]);
+			$this->changeProperty($riskID,$this->getLang("RiskLevelF"),$impact*$VFR);
+                        $this->changeProperty($riskID,$this->getLang("RiskClassF"),$this->rlabel[$impact*$VFR]);
+			$this->changeProperty($riskID,$this->getLang("RiskLevelMin"),$impact*$VminR);
+                        $this->changeProperty($riskID,$this->getLang("RiskClassMin"),$this->rlabel[$impact*$VminR]);
+                        $this->changeProperty($riskID,$this->getLang("deadline"),$deadlineR);                       
 		} 		
 
 
