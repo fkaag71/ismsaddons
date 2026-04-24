@@ -70,9 +70,9 @@ class action_plugin_ismsaddons extends ActionPlugin
     public function updateRiskData(Event $event, $param)
     {
 		
-	$ID = $event->data['page'];
-	
-	$types = $this->triples->fetchTriples ($item,"is a",null,null);
+	$ID = $event->data;	
+
+	$types = $this->triples->fetchTriples ($ID,"is a",null,null);
 	$impact = false;
 
 	foreach ($types as $type) {
