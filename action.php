@@ -13,9 +13,7 @@ use dokuwiki\Extension\Event;
 class action_plugin_ismsaddons extends ActionPlugin
 {
     public function __construct() {
-
-	$this->triples =& plugin_load('helper', 'strata_triples');
-
+#	$this->triples =& plugin_load('helper', 'strata_triples');
 	}	
     /** @inheritDoc */
     public function register(EventHandler $controller)
@@ -69,7 +67,8 @@ class action_plugin_ismsaddons extends ActionPlugin
 
     public function updateRiskData(Event $event, $param)
     {
-		
+	$this->triples =& plugin_load('helper', 'strata_triples');
+        		
 	$ID = $event->data;	
 
 	$types = $this->triples->fetchTriples ($ID,"is a",null,null);
