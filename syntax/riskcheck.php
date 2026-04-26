@@ -9,7 +9,6 @@
 class syntax_plugin_ismsaddons_riskcheck extends \dokuwiki\Extension\SyntaxPlugin
 {
     public function __construct() {
-	$this->triples =& plugin_load('helper', 'strata_triples');
 
 	}
 
@@ -85,6 +84,8 @@ class syntax_plugin_ismsaddons_riskcheck extends \dokuwiki\Extension\SyntaxPlugi
 		
     public function render($mode, Doku_Renderer $R, $data) {
 	global $ID;
+	$this->triples =& plugin_load('helper', 'strata_triples');
+        
 	$scope = GetNS ($ID);
 	$page = noNS($ID);
 

@@ -9,8 +9,6 @@ use dokuwiki\Utf8\Clean;
 class syntax_plugin_ismsaddons_riskindicators extends \dokuwiki\Extension\SyntaxPlugin
 {
     public function __construct() {
-	$this->triples =& plugin_load('helper', 'strata_triples');
-        $this->pscope = $this->getConf('param');
 	}
 
     /** @inheritDoc */
@@ -82,6 +80,8 @@ class syntax_plugin_ismsaddons_riskindicators extends \dokuwiki\Extension\Syntax
 	
     public function render($mode, Doku_Renderer $R, $data) {
 	global $ID;
+	$this->triples =& plugin_load('helper', 'strata_triples');
+        $this->pscope = $this->getConf('param');        
 
 	if ($this->pscope == '')
 	{
