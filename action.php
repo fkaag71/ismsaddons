@@ -13,7 +13,9 @@ use dokuwiki\Extension\Event;
 class action_plugin_ismsaddons extends ActionPlugin
 {
     public function __construct() {
-#	$this->triples =& plugin_load('helper', 'strata_triples');
+
+	$this->triples =& plugin_load('helper', 'strata_triples');
+
 	}	
     /** @inheritDoc */
     public function register(EventHandler $controller)
@@ -39,7 +41,7 @@ class action_plugin_ismsaddons extends ActionPlugin
 
 		if ($this->getProperty($item,$predicate) != $value) {
 			$this->triples->removeTriples($item,$predicate,null,null);
-			$this->triples->addTriple($item, $predicate,$value,$item);
+			$this->triples->addTriple($item, $predicate,$value,"ismsaddons");
 		}
 	}
 
@@ -51,7 +53,7 @@ class action_plugin_ismsaddons extends ActionPlugin
 		foreach ($lmes as $emes) {
 
 			$ames = $tmes[$emes['object']];
-			$this->triples->addTriple($scnID,$this->getLang("measures"),$emes['object'],$scnID);
+			$this->triples->addTriple($scnID,$this->getLang("measures"),$emes['object'],"ismsaddons");
 			if ($ames['status'] == 'E') continue;
 			$res = false;
 			if ($ames['status'] == 'P') {
@@ -67,8 +69,7 @@ class action_plugin_ismsaddons extends ActionPlugin
 
     public function updateRiskData(Event $event, $param)
     {
-	$this->triples =& plugin_load('helper', 'strata_triples');
-        		
+		
 	$ID = $event->data;	
 
 	$types = $this->triples->fetchTriples ($ID,"is a",null,null);
