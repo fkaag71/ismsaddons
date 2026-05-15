@@ -21,7 +21,17 @@ class action_plugin_ismsaddons extends ActionPlugin
     public function register(EventHandler $controller)
     {
         $controller->register_hook('STRATA_UPDATE', 'AFTER', $this, 'updateRiskData',null,100);
+	$controller->register_hook('MENU_ITEMS_ASSEMBLY', 'AFTER', $this, 'addsvgbutton', array());
+        $controller->register_hook('ACTION_ACT_PREPROCESS','BEFORE', $this, 'allowUpdate');
+        $controller->register_hook('TPL_ACT_UNKNOWN', 'BEFORE', $this, 'updateRiskData');
     }
+
+	function allowUpdate(&$event, $param){
+		if($event->data != 'update_risk_data') return;
+		// ok - we handle the action
+		$event->preventDefault();
+		return true;
+	}
 
 	function getProperty($item,$predicate)
 	{		
@@ -61,27 +71,23 @@ class action_plugin_ismsaddons extends ActionPlugin
 					$deadline = $ames['deadline'];
 				}
 			}
-			else $deadline = "XXXX";
+			else {
+				$deadline = "XXXX";
+				}
                		}
 
 		return $res;
 	}
 
+    public function addsvgbutton(Doku_Event $event) {
+        if($event->data['view'] != 'page') return;
+        array_splice($event->data['items'], -1, 0, [new \dokuwiki\plugin\ismsaddons\MenuItem()]);
+    }
+
     public function updateRiskData(Event $event, $param)
     {
 		
-	$ID = $event->data;	
-
-	$types = $this->triples->fetchTriples ($ID,"is a",null,null);
-	$impact = false;
-
-	foreach ($types as $type) {
-		if (in_array($type["object"],array('mes','scn','risk'),true)) {
-			$impact = true;
-			break;
-		}
-	}
-	if (!$impact) return;
+	if ($event->data != 'update_risk_data') return;
 	
 	$lrisk = $this->triples->fetchTriples(null,"is a","risk",null);
 	$lscn = $this->triples->fetchTriples(null,"is a","scn",null);
@@ -105,7 +111,6 @@ class action_plugin_ismsaddons extends ActionPlugin
          {
             for (;$i<=$value;$i++) $this->rlabel[$i]=$label;
          }
-
 
 		$tmes = [];
 		foreach ($lmes as $emes)
@@ -165,16 +170,18 @@ class action_plugin_ismsaddons extends ActionPlugin
 				$this->changeProperty($scnID,$this->getLang("cl"),$Va);
 				$this->changeProperty($scnID,$this->getLang("fl"),$VFa);
 			}
+			$this->triples->purgeTriples($scnID,null,null);
+			
 		}	
 
 		foreach ($lrisk as $erisk)
 		{
 			$riskID = $erisk['subject'];
 			$impact = $this->getProperty($riskID,$this->getLang("impact"));
-			$lscn=$this->triples->fetchTriples($riskID,$this->getLang("scenarios"),null,null);
+			$rscn=$this->triples->fetchTriples($riskID,$this->getLang("scenarios"),null,null);
 			$VR = $VFR = $VminR = 0;
 			
-			foreach ($lscn as $escn)
+			foreach ($rscn as $escn)
 			{
                             $scndata = $tscn[$escn['object']];
                             $Vc = $scndata['Vc'];
@@ -186,7 +193,7 @@ class action_plugin_ismsaddons extends ActionPlugin
                             if ($Vmin > $VminR) {$VminR = $Vmin;}
 			}
                         $deadlineR = "";
-                        foreach($lscn as $escn)
+                        foreach($rscn as $escn)
                         {                          
                             $scndata = $tscn[$escn['object']];
                             if ($scndata['Vf'] == $VFR)
@@ -209,8 +216,12 @@ class action_plugin_ismsaddons extends ActionPlugin
 			$this->changeProperty($riskID,$this->getLang("RiskLevelMin"),$impact*$VminR);
                         $this->changeProperty($riskID,$this->getLang("RiskClassMin"),$this->rlabel[$impact*$VminR]);
                         $this->changeProperty($riskID,$this->getLang("deadline"),$deadlineR);                       
+			$this->triples->purgeTriples($riskID,null,null);
 		} 		
 
-
+		echo "RISKS: ". count($lrisk)."<br>SCENARIOS: ".count($lscn)."<br>MEASURES: ".count($lmes);
+		$event->preventDefault();
+		$event->stopPropagation();
+		return true;
     }
 }
