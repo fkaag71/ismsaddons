@@ -193,18 +193,18 @@ class action_plugin_ismsaddons extends ActionPlugin
                             if ($Vmin > $VminR) {$VminR = $Vmin;}
 			}
                         $deadlineR = "";
-                        foreach($rscn as $escn)
-                        {                          
-                            $scndata = $tscn[$escn['object']];
-                            if ($scndata['Vf'] == $VFR)
-                            {
-                                if ($scndata['deadline']>$deadlineR)
-                                {
-                                    $deadlineR = $scndata['deadline'];
-                                }
-                            }
-                                
-                        }
+			foreach($rscn as $escn)
+			{                          
+				$scndata = $tscn[$escn['object']];
+				if ($scndata['Vc'] == $VR)
+				{
+					if ($scndata['deadline']>$deadlineR)
+					{
+						$deadlineR = $scndata['deadline'];
+					}
+				}
+					
+			}
 
 			$this->changeProperty($riskID,$this->getLang("cl"),$VR);
 			$this->changeProperty($riskID,$this->getLang("fl"),$VFR);
