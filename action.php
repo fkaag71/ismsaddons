@@ -24,6 +24,7 @@ class action_plugin_ismsaddons extends ActionPlugin
 	$controller->register_hook('MENU_ITEMS_ASSEMBLY', 'AFTER', $this, 'addsvgbutton', array());
         $controller->register_hook('ACTION_ACT_PREPROCESS','BEFORE', $this, 'allowUpdate');
         $controller->register_hook('TPL_ACT_UNKNOWN', 'BEFORE', $this, 'updateRiskData');
+        $controller->register_hook('PLUGIN_MOVE_PAGE_RENAME', 'AFTER', $this, 'isms_rename_after');
     }
 
 	function allowUpdate(&$event, $param){
@@ -224,4 +225,12 @@ class action_plugin_ismsaddons extends ActionPlugin
 		$event->stopPropagation();
 		return true;
     }
+
+
+  public function isms_rename_after($event,$param) {
+        $triples =& plugin_load('helper', 'strata_triples');
+        $triples->removeTriples($event->data['src_id'],null,null,"ismsaddons");
+        $triples->purgeTriples($event->data['src_id']);
+    }
+
 }
